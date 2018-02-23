@@ -2,7 +2,7 @@
 
 #include <cgraphics/Extensions.hpp>
 
-#include <glew.h>
+#include <GL/glew.h>
 #include <GL/freeglut.h>
 
 #include <glm/glm.hpp>

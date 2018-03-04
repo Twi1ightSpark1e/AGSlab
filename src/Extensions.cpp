@@ -1,6 +1,6 @@
 #include <cgraphics/Extensions.hpp>
 
-std::vector<std::string> Extensions::read_file(std::string filename)
+std::vector<std::string> Extensions::read_file(const std::string &filename)
 {
     std::vector<std::string> temp;
     std::ifstream file(filename);
@@ -9,7 +9,7 @@ std::vector<std::string> Extensions::read_file(std::string filename)
         std::cerr << "File " << filename << " not found! Exitting" << std::endl;
         exit(1);
     }
-    while (std::getline(file, temp.emplace_back())) ;
+    while (std::getline(file, temp.emplace_back())) {}
     file.close();
     return temp;
 }

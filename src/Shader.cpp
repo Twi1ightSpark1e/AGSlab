@@ -1,6 +1,6 @@
 #include <cgraphics/Shader.hpp>
 
-void Shader::load_shader(GLuint &id, GLenum type, std::vector<std::string> text, bool debug)
+void Shader::load_shader(GLuint &id, GLenum type, const std::vector<std::string> &text, bool debug)
 {
     auto [strings,lengths] = Extensions::vector_to_array(text);
     if (debug)
@@ -8,7 +8,7 @@ void Shader::load_shader(GLuint &id, GLenum type, std::vector<std::string> text,
         std::cout << "Creating and compiling shader" << std::endl;
         for (uint i = 0; i < text.size(); i++)
         {
-            std::cout << (char*)(strings[i]) << std::endl;
+            std::cout << strings[i] << std::endl;
         }
     }
     id = glCreateShader(type);
@@ -38,7 +38,7 @@ void Shader::load_shader(GLuint &id, GLenum type, std::vector<std::string> text,
     delete[] lengths;
 }
 
-void Shader::load_vertex_shader(std::string filename, bool debug)
+void Shader::load_vertex_shader(const std::string &filename, bool debug)
 {
     if (debug)
     {
@@ -48,7 +48,7 @@ void Shader::load_vertex_shader(std::string filename, bool debug)
     load_shader(vsh, GL_VERTEX_SHADER, shader, debug);
 }
 
-void Shader::load_fragment_shader(std::string filename, bool debug)
+void Shader::load_fragment_shader(const std::string &filename, bool debug)
 {
     if (debug)
     {

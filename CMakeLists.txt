@@ -5,6 +5,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCES 
@@ -35,3 +37,13 @@ target_link_libraries(cgraphics
     ${GLEW_LIBRARIES}
     ${DEVIL_LIBRARIES}
 )
+
+find_program(clangtidy_path NAMES clang-tidy)
+if(clangtidy_path)
+    add_custom_target(tidy
+        COMMAND "${clangtidy_path}" -quiet -p "${PROJECT_BINARY_DIR}" ${SOURCES}
+        COMMENT "Running clang-tidy tool"
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        SOURCES ${PROJECT_SOURCE_DIR}/.clang-tidy
+        )
+endif()

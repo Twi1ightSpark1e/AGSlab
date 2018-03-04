@@ -20,13 +20,13 @@ private:
     // шейдерная программа (шейдер)
     GLuint program;
 
-    void load_shader(GLuint &id, GLenum type, std::vector<std::string> text, bool debug);
+    void load_shader(GLuint &id, GLenum type, const std::vector<std::string> &text, bool debug);
 
 public:
     // загрузить вершинный шейдер
-    void load_vertex_shader(std::string filename, bool debug = true);
+    void load_vertex_shader(const std::string &filename, bool debug = true);
     // загрузить фрагментный шейдер
-    void load_fragment_shader(std::string filename, bool debug = true);
+    void load_fragment_shader(const std::string &filename, bool debug = true);
     // слинковать шейдерную программу
     void link(bool debug = true);
 
@@ -36,13 +36,13 @@ public:
     static void deactivate();
 
     // получение индекса атрибут-переменной
-    int get_attrib_location(std::string name)
+    int get_attrib_location(const std::string &name)
     {
         return glGetAttribLocation(program, name.c_str());
     };
 
     // запись вектора из 4-х комопнент в uniform-переменную
-    void set_uniform_vec4(std::string name, glm::vec4 value)
+    void set_uniform_vec4(const std::string &name, glm::vec4 value)
     {
         int k = glGetUniformLocation (program, name.c_str());
         if (k < 0) return;

@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 
 #include <cgraphics/Shader.hpp>
 
@@ -22,9 +22,7 @@ int vertex_count  = 0;    // количество вершин
 void init_object ()
 {
     // создание и заполнение VBO
-    GLuint *temp_array = new GLuint[1];
-    glGenBuffers (1, temp_array);
-    vbo_index = temp_array[0];
+    glGenBuffers (1, &vbo_index);
     glBindBuffer (GL_ARRAY_BUFFER, vbo_index);
     GLfloat verteces [] = {
         -0.5,0.5,
@@ -37,20 +35,18 @@ void init_object ()
     glBufferData (GL_ARRAY_BUFFER, sizeof(verteces), verteces, GL_STATIC_DRAW);
 
     // создание VAO
-    glGenVertexArrays (1, temp_array);
-    vao_index = temp_array[0];
+    glGenVertexArrays (1, &vao_index);
     glBindVertexArray (vao_index);
     // заполнение VAO
     glBindBuffer (GL_ARRAY_BUFFER, vbo_index);
     int k = shader.get_attrib_location("vPosition"s);
-    glVertexAttribPointer (k, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer (k, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(k);
     // "отвязка" буфера VAO, чтоб случайно не испортить
     glBindVertexArray(0);
 
     // указание количество вершин
     vertex_count = 6;
-    return;
 }
 
 // функция вызывается при перерисовке окна

@@ -20,10 +20,11 @@ std::tuple<GLchar**,GLint*> Extensions::vector_to_array(std::vector<std::string>
     auto lengths = new GLint[vector.size()];
     for (uint i = 0; i < vector.size(); i++)
     {
-        strs[i] = new char[vector[i].length()+1];
+        strs[i] = new char[vector[i].length()+2];
         int len = vector[i].copy(strs[i], vector[i].length(), 0);
-        strs[i][len] = 0;
-        lengths[i] = vector[i].length();
+        strs[i][len] = '\n';
+        strs[i][len+1] = 0;
+        lengths[i] = vector[i].length() + 1;
     }
     return std::make_tuple(strs,lengths);
 }

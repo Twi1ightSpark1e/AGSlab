@@ -8,7 +8,7 @@ void Shader::load_shader(GLuint &id, GLenum type, const std::vector<std::string>
         std::cout << "Creating and compiling shader" << std::endl;
         for (uint i = 0; i < text.size(); i++)
         {
-            std::cout << strings[i] << std::endl;
+            std::cout << strings[i];
         }
     }
     id = glCreateShader(type);
@@ -28,7 +28,6 @@ void Shader::load_shader(GLuint &id, GLenum type, const std::vector<std::string>
         std::cerr << error_log.data() << std::endl;
 
         glDeleteShader(id);
-        exit(1);
     }
     if (debug)
     {
@@ -107,4 +106,44 @@ void Shader::activate()
 void Shader::deactivate()
 {
     glUseProgram(0);
+}
+
+int Shader::get_attrib_location(const std::string &name)
+{
+    return glGetAttribLocation(program, name.c_str());
+}
+
+int Shader::get_uniform_location(const std::string &name)
+{
+    auto found_element = uniforms.find(name);
+    if (found_element != uniforms.end())
+    {
+        return found_element->second;
+    }
+    int location = glGetUniformLocation(program, name.c_str());
+    if (location >= 0)
+    {
+        uniforms.emplace(name, location);
+    }
+    return location;
+}
+
+void Shader::set_uniform_vec4(const std::string &name, glm::vec4 value)
+{
+    int location = get_uniform_location(name);
+    if (location >= 0)
+    {
+        glUseProgram(program);
+        glUniform4fv(location, 1, glm::value_ptr(value));
+    }
+}
+
+void Shader::set_uniform_mat4(const std::string &name, glm::mat4 value)
+{
+    int location = get_uniform_location(name);
+    if (location >= 0)
+    {
+        glUseProgram(program);
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+    }
 }

@@ -12,7 +12,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(SOURCES 
     "src/main.cpp"
     "src/Shader.cpp"
-    "src/Extensions.cpp")
+    "src/Extensions.cpp"
+    "src/Camera.cpp")
 
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)

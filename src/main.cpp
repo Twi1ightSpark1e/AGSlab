@@ -3,6 +3,7 @@
 
 #include <cgraphics/Shader.hpp>
 #include <cgraphics/Camera.hpp>
+#include <cgraphics/CameraController.hpp>
 
 #include <GL/freeglut.h>
 
@@ -78,7 +79,7 @@ void draw_cube(Shader &shader) {
         // заполнение VAO
         glBindBuffer(GL_ARRAY_BUFFER, vbo_index);
         int k = shader.get_attrib_location("vPosition"s);
-        glVertexAttribPointer(k, 3, GL_FLOAT, GL_TRUE, 0, 0);
+        glVertexAttribPointer(k, 3, GL_FLOAT, GL_TRUE, 0, nullptr);
         glEnableVertexAttribArray(k);
         // "отвязка" буфера VAO, чтоб случайно не испортить
         glBindVertexArray(0);
@@ -131,7 +132,6 @@ void display()
         // выводим объект
         draw_cube(shader);
     }
-    shader.deactivate();
 
     glutSwapBuffers();
 }
@@ -144,12 +144,59 @@ void reshape(int w,int h)
     Camera::get_instance().set_projection_matrix(glm::radians(45.0), float(w) / float(h), .1, 1000);
 };
 
+void simulate_mouse()
+{
+    static int mouse_x, mouse_y, prev_button_state = GLUT_UP;
+
+    if ((prev_button_state == GLUT_UP) && 
+        (CameraController::get_instance().get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_DOWN))
+    {
+        mouse_x = CameraController::get_instance().get_mouse_state('x');
+        mouse_y = CameraController::get_instance().get_mouse_state('y');
+        prev_button_state = GLUT_DOWN;
+    }
+    else if ((prev_button_state == GLUT_DOWN) && 
+        (CameraController::get_instance().get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_DOWN))
+    {
+        float new_x = CameraController::get_instance().get_mouse_state('x');
+        float new_y = CameraController::get_instance().get_mouse_state('y');
+        Camera::get_instance().rotate((new_x - mouse_x) / 300, (new_y - mouse_y) / 300);
+        mouse_x = new_x;
+        mouse_y = new_y;
+    }
+    else if (CameraController::get_instance().get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_UP)
+    {
+        prev_button_state = GLUT_UP;
+    }
+}
+
+void simulate_keyboard(double delta_s)
+{
+    if (CameraController::get_instance().get_arrow_state(GLUT_KEY_LEFT) == GLUT_DOWN)
+    {
+        Camera::get_instance().move_oxz(0, -delta_s);
+    }
+    if (CameraController::get_instance().get_arrow_state(GLUT_KEY_UP) == GLUT_DOWN)
+    {
+        Camera::get_instance().move_oxz(delta_s, 0);
+    }
+    if (CameraController::get_instance().get_arrow_state(GLUT_KEY_RIGHT) == GLUT_DOWN)
+    {
+        Camera::get_instance().move_oxz(0, delta_s);
+    }
+    if (CameraController::get_instance().get_arrow_state(GLUT_KEY_DOWN) == GLUT_DOWN)
+    {
+        Camera::get_instance().move_oxz(-delta_s, 0);
+    }
+}
+
 // функция вызывается когда процессор простаивает, т.е. максимально часто
 void simulation()
 {
     static auto time_prev = high_resolution_clock::now();
     static auto time_base = time_prev;
     static auto frames = 0;
+
     auto time_current = high_resolution_clock::now();
     auto time_from_base = duration_cast<milliseconds>(time_current - time_base).count();
     auto delta_mcs = duration_cast<microseconds>(time_current - time_prev).count();
@@ -157,38 +204,69 @@ void simulation()
     time_prev = time_current;
     frames++;
 
+    simulate_mouse();
+    simulate_keyboard(delta_s);
+
     if (time_from_base >= 500)
     {
         glutSetWindowTitle(("FPS: " + std::to_string(int(frames * 1000. / time_from_base))).c_str());
         time_base = time_current;
         frames = 0;
     }
-    //std::cout << delta_s << std::endl;
-    //Camera::get_instance().rotate(delta_s, 0);
-    //Camera::get_instance().zoom(delta_s);
-    //Camera::get_instance().move_oxz(delta_s, 0);
     //ПЕРЕРИСОВАТЬ ОКНО
     glutPostRedisplay();
 }
 
-void key_down(unsigned char key, int x, int y)
+void speckey(int key, int state)
 {
-    std::cout << (int)key << " down" << std::endl;
+    switch (key)
+    {
+        case GLUT_KEY_UP:
+        case GLUT_KEY_DOWN:
+        case GLUT_KEY_LEFT:
+        case GLUT_KEY_RIGHT:
+            CameraController::get_instance().set_arrow_state(key, state);
+            return;
+        default:
+            return;
+    }
 }
 
-void key_release(unsigned char key, int x, int y)
+void speckey_down(int key, int, int)
 {
-    std::cout << (int)key << " released" << std::endl;
+    speckey(key, GLUT_DOWN);
 }
 
-void speckey_down(int key, int x, int y)
+void speckey_up(int key, int, int)
 {
-    std::cout << key << " down" << std::endl;
+    speckey(key, GLUT_UP);
 }
 
-void speckey_up(int key, int x, int y)
+void mouse(int button, int state, int x, int y)
 {
-    std::cout << key << " released" << std::endl;
+    switch (button)
+    {
+        case 0:
+        case 1:
+        case 2:
+            CameraController::get_instance().set_mouse_state(button, state);
+            motion(x, y);
+            return;
+        case 3: // колёсико вверх
+            Camera::get_instance().zoom(0.05);
+            return;
+        case 4: // колёсико вниз
+            Camera::get_instance().zoom(-0.05);
+            return;
+        default:
+            return;
+    }
+}
+
+void motion(int x, int y)
+{
+    CameraController::get_instance().set_mouse_state('x', x);
+    CameraController::get_instance().set_mouse_state('y', y);
 }
 
 int main(int argc,char **argv)
@@ -212,11 +290,11 @@ int main(int argc,char **argv)
     GLenum err = glewInit();
     if (GLEW_OK != err)
     {
-        fprintf(stderr, "Glew error: %s\n", glewGetErrorString(err));
+        std::cerr << "GLEW error: " << glewGetErrorString(err) << std::endl;
         return 1;
     }
     // определение текущей версии OpenGL
-    printf("OpenGL Version = %s\n\n", glGetString(GL_VERSION));
+    std::cout << "OpenGL Version = " << glGetString(GL_VERSION) << std::endl << std::endl;
 
     // загрузка шейдера
     shader.load_vertex_shader ("../shaders/cube.vsh"s, false);
@@ -229,11 +307,14 @@ int main(int argc,char **argv)
     glutReshapeFunc(reshape);
     // устанавливаем функцию которая вызывается всякий раз, когда процессор простаивает
     glutIdleFunc(simulation);
-
-    glutKeyboardFunc(key_down);
-    glutKeyboardUpFunc(key_release);
+    // функция, которая регистрирует перемещение мыши с зажатой кнопкой
+    glutMotionFunc(motion);
+    // функйия, которая вызывается каждый раз, когда нажимается кнопка мыши, или крутится колесо
+    glutMouseFunc(mouse);
+    // функция обработки специальных кнопок
     glutSpecialFunc(speckey_down);
     glutSpecialUpFunc(speckey_up);
+    // убираем повторение кнопок, т.к. мы регистрируем моменты нажатия и отпускания
     glutSetKeyRepeat(GL_FALSE);
     // основной цикл обработки сообщений ОС
     glutMainLoop();

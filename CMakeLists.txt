@@ -13,7 +13,8 @@ set(SOURCES
     "src/main.cpp"
     "src/Shader.cpp"
     "src/Extensions.cpp"
-    "src/Camera.cpp")
+    "src/Camera.cpp"
+    "src/CameraController.cpp")
 
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
@@ -41,6 +42,7 @@ target_link_libraries(cgraphics
 
 find_program(clangtidy_path NAMES clang-tidy)
 if(clangtidy_path)
+    message(STATUS Found clang-tidy at "${clangtidy_path}")
     add_custom_target(tidy
         COMMAND "${clangtidy_path}" -quiet -p "${PROJECT_BINARY_DIR}" ${SOURCES}
         COMMENT "Running clang-tidy tool"

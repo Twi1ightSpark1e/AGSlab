@@ -14,11 +14,17 @@ private:
     // Вектора: местоположение глаз, точки обзора и направления вверх
     glm::vec3 eye, center, up;
     // Вспомогательные поля
-    double radian_x, radian_y, radius, speed;
+    double radian_x = 0, radian_y = .2, radius = 8, speed = 2;
 
     void calculate_vectors();
 public:
     Camera();
+    // clang-tidy, shut up!
+    Camera(const Camera&) = default;
+    Camera(Camera&&) = default;
+    Camera& operator=(const Camera&) = default;
+    Camera& operator=(Camera&&) = default;
+
     ~Camera();
     static Camera &get_instance();
 

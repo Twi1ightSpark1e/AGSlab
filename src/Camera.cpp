@@ -2,11 +2,7 @@
 
 Camera::Camera() : 
     center(0, 0, 0),
-    up(0, 1, 0),
-    radian_x(0),
-    radian_y(0.2),
-    radius(10.f),
-    speed(2)
+    up(0, 1, 0)
 {
     std::ifstream dump("camera_position.txt");
     if (dump.is_open())
@@ -65,8 +61,8 @@ glm::mat4 Camera::get_view_matrix()
 
 void Camera::move_oxz(double forward, double right)
 {
-    center.x -= forward * speed;
-    center.z -= right * speed;
+    center.x += forward * speed;
+    center.z += right * speed;
     calculate_vectors();
 }
 
@@ -76,7 +72,7 @@ void Camera::rotate(double horizontal, double vertical)
     if ((radian_y > 0.0873) && (radian_y < 1.396))
     {
         radian_y += vertical * std::sqrt(speed);
-        radian_y = std::max(.0873, std::min(1.396, radian_y));
+        radian_y = std::max(.0874, std::min(1.395, radian_y));
     }
     calculate_vectors();
 }

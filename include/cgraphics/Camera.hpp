@@ -17,14 +17,14 @@ private:
     double radian_x = 0, radian_y = .2, radius = 8, speed = 2;
 
     void calculate_vectors();
-public:
+
     Camera();
     // clang-tidy, shut up!
     Camera(const Camera&) = default;
     Camera(Camera&&) = default;
     Camera& operator=(const Camera&) = default;
     Camera& operator=(Camera&&) = default;
-
+public:
     ~Camera();
     static Camera &get_instance();
 

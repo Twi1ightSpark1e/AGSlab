@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <chrono>
+#include <csignal>
 
 #include <cgraphics/Shader.hpp>
 #include <cgraphics/Camera.hpp>
@@ -12,7 +13,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace std::string_literals;
-using namespace std::chrono;
 
 // используемый шейдер (пока только один)
 Shader shader;
@@ -193,6 +193,8 @@ void simulate_keyboard(double delta_s)
 // функция вызывается когда процессор простаивает, т.е. максимально часто
 void simulation()
 {
+    using namespace std::chrono;
+
     static auto time_prev = high_resolution_clock::now();
     static auto time_base = time_prev;
     static auto frames = 0;
@@ -242,6 +244,12 @@ void speckey_up(int key, int, int)
     speckey(key, GLUT_UP);
 }
 
+void motion(int x, int y)
+{
+    CameraController::get_instance().set_mouse_state('x', x);
+    CameraController::get_instance().set_mouse_state('y', y);
+}
+
 void mouse(int button, int state, int x, int y)
 {
     switch (button)
@@ -263,10 +271,9 @@ void mouse(int button, int state, int x, int y)
     }
 }
 
-void motion(int x, int y)
+void sigint_handler(int param)
 {
-    CameraController::get_instance().set_mouse_state('x', x);
-    CameraController::get_instance().set_mouse_state('y', y);
+    glutLeaveMainLoop();
 }
 
 int main(int argc,char **argv)
@@ -317,6 +324,7 @@ int main(int argc,char **argv)
     // убираем повторение кнопок, т.к. мы регистрируем моменты нажатия и отпускания
     glutSetKeyRepeat(GL_FALSE);
     // основной цикл обработки сообщений ОС
+    signal(SIGINT, sigint_handler);
     glutMainLoop();
     return 0;
 };

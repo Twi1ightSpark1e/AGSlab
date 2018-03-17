@@ -65,23 +65,22 @@ glm::mat4 Camera::get_view_matrix()
 
 void Camera::move_oxz(double forward, double right)
 {
-    auto vec_forward = glm::normalize(center - (eye + center));
+    auto vec_forward = glm::normalize(-eye);
     auto delta_forward = glm::vec3(vec_forward.x * forward, 0, vec_forward.z * forward); 
-    auto delta_right = glm::normalize(glm::cross(vec_forward, up)); 
+    auto delta_right = glm::normalize(glm::cross(vec_forward, up));
     delta_right = glm::vec3(delta_right.x * right, 0, delta_right.z * right);
 
-    center += delta_forward * float(speed);
-    center += delta_right * float(speed);
+    center += delta_forward * float(speed) + delta_right * float(speed);
 
     calculate_vectors();
 }
 
 void Camera::rotate(double horizontal, double vertical)
 {
-    static const double LOWER_BOUND = .0874, UPPER_BOUND = 1.395;
+    static const double LOWER_BOUND = .0873, UPPER_BOUND = 1.394;
 
     radian_x += horizontal * std::sqrt(speed);
-    if ((radian_y > 0.0873) && (radian_y < 1.396))
+    if ((radian_y >= LOWER_BOUND) && (radian_y <= UPPER_BOUND))
     {
         radian_y += vertical * std::sqrt(speed);
         radian_y = std::max(LOWER_BOUND, std::min(UPPER_BOUND, radian_y));
@@ -91,9 +90,12 @@ void Camera::rotate(double horizontal, double vertical)
 
 void Camera::zoom(double radius)
 {
-    if ((this->radius > 2) && (this->radius < 100))
+    static const double LOWER_BOUND = 2, UPPER_BOUND = 100;
+
+    if ((this->radius >= LOWER_BOUND) && (this->radius <= UPPER_BOUND))
     {
         this->radius -= radius * std::pow(speed, 2);
+        this->radius = std::max(LOWER_BOUND, std::min(this->radius, UPPER_BOUND));
     }
     calculate_vectors();
 }

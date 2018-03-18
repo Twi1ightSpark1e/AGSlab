@@ -6,7 +6,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
 if ( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG")
+    set(CMAKE_CXX_FLAGS "-DDEBUG ${CMAKE_CXX_FLAGS}")
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -23,14 +23,12 @@ set(SOURCES
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(DevIL REQUIRED)
 find_package(GLM REQUIRED)
 
 include_directories(
     ${OPENGL_INCLUDE_DIRS}
     ${GLUT_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
-    ${DEVIL_INCLUDE_DIRS}
     ${GLM_INCLUDE_DIRS}
     "include"
 )
@@ -41,7 +39,7 @@ target_link_libraries(cgraphics
     ${OPENGL_LIBRARIES}
     ${GLUT_LIBRARIES}
     ${GLEW_LIBRARIES}
-    ${DEVIL_LIBRARIES}
+    "stdc++fs"
 )
 
 find_program(clangtidy_path NAMES clang-tidy)

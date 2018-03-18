@@ -1,10 +1,13 @@
 #include <cstdio>
 #include <chrono>
 #include <csignal>
+#include <experimental/filesystem>
+#include <iostream>
 
 #include <cgraphics/Shader.hpp>
 #include <cgraphics/Camera.hpp>
 #include <cgraphics/CameraController.hpp>
+#include <cgraphics/Extensions.hpp>
 
 #include <GL/freeglut.h>
 
@@ -12,13 +15,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-using namespace std::string_literals;
-
 // используемый шейдер (пока только один)
 Shader shader;
+// Камера
+Camera camera;
+CameraController& camera_controller = CameraController::get_instance();
 
 // функция вывода плоскости
 void draw_cube(Shader &shader) {
+    using namespace std::string_literals;
 // переменные для вывода объекта (прямоугольника из двух треугольников)
     static GLuint vao_index = 0;    // индекс VAO-буфера
     static GLuint vbo_index = 0;    // индекс VBO-буфера
@@ -95,6 +100,8 @@ void draw_cube(Shader &shader) {
 // в том числе и принудительно, по командам glutPostRedisplay
 void display()
 {
+    using namespace std::string_literals;
+
     static auto model = glm::mat4(
         glm::vec4(1, 0, 0, 0),
         glm::vec4(0, 1, 0, 0),
@@ -117,8 +124,8 @@ void display()
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    auto projection = Camera::get_instance().get_projection_matrix();
-    auto view = Camera::get_instance().get_view_matrix();
+    auto projection = camera.get_projection_matrix();
+    auto view = camera.get_view_matrix();
 
     // активируем первый шейдер
     shader.activate();
@@ -141,7 +148,7 @@ void reshape(int w,int h)
 {
     // установить новую область просмотра, равную всей области окна
     glViewport(0,0,(GLsizei)w, (GLsizei)h);
-    Camera::get_instance().set_projection_matrix(glm::radians(45.0), float(w) / float(h), .1, 1000);
+    camera.set_projection_matrix(glm::radians(45.0), float(w) / float(h), .1, 1000);
 };
 
 void simulate_mouse()
@@ -149,22 +156,22 @@ void simulate_mouse()
     static int mouse_x, mouse_y, prev_button_state = GLUT_UP;
 
     if ((prev_button_state == GLUT_UP) && 
-        (CameraController::get_instance().get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_DOWN))
+        (camera_controller.get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_DOWN))
     {
-        mouse_x = CameraController::get_instance().get_mouse_state('x');
-        mouse_y = CameraController::get_instance().get_mouse_state('y');
+        mouse_x = camera_controller.get_mouse_state('x');
+        mouse_y = camera_controller.get_mouse_state('y');
         prev_button_state = GLUT_DOWN;
     }
     else if ((prev_button_state == GLUT_DOWN) && 
-        (CameraController::get_instance().get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_DOWN))
+        (camera_controller.get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_DOWN))
     {
-        float new_x = CameraController::get_instance().get_mouse_state('x');
-        float new_y = CameraController::get_instance().get_mouse_state('y');
-        Camera::get_instance().rotate((new_x - mouse_x) / 300, (new_y - mouse_y) / 300);
+        float new_x = camera_controller.get_mouse_state('x');
+        float new_y = camera_controller.get_mouse_state('y');
+        camera.rotate((new_x - mouse_x) / 300, (new_y - mouse_y) / 300);
         mouse_x = new_x;
         mouse_y = new_y;
     }
-    else if (CameraController::get_instance().get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_UP)
+    else if (camera_controller.get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_UP)
     {
         prev_button_state = GLUT_UP;
     }
@@ -172,21 +179,21 @@ void simulate_mouse()
 
 void simulate_keyboard(double delta_s)
 {
-    if (CameraController::get_instance().get_arrow_state(GLUT_KEY_LEFT) == GLUT_DOWN)
+    if (camera_controller.get_arrow_state(GLUT_KEY_LEFT) == GLUT_DOWN)
     {
-        Camera::get_instance().move_oxz(0, -delta_s);
+        camera.move_oxz(0, -delta_s);
     }
-    if (CameraController::get_instance().get_arrow_state(GLUT_KEY_UP) == GLUT_DOWN)
+    if (camera_controller.get_arrow_state(GLUT_KEY_UP) == GLUT_DOWN)
     {
-        Camera::get_instance().move_oxz(delta_s, 0);
+        camera.move_oxz(delta_s, 0);
     }
-    if (CameraController::get_instance().get_arrow_state(GLUT_KEY_RIGHT) == GLUT_DOWN)
+    if (camera_controller.get_arrow_state(GLUT_KEY_RIGHT) == GLUT_DOWN)
     {
-        Camera::get_instance().move_oxz(0, delta_s);
+        camera.move_oxz(0, delta_s);
     }
-    if (CameraController::get_instance().get_arrow_state(GLUT_KEY_DOWN) == GLUT_DOWN)
+    if (camera_controller.get_arrow_state(GLUT_KEY_DOWN) == GLUT_DOWN)
     {
-        Camera::get_instance().move_oxz(-delta_s, 0);
+        camera.move_oxz(-delta_s, 0);
     }
 }
 
@@ -227,9 +234,7 @@ void speckey(int key, int state)
         case GLUT_KEY_DOWN:
         case GLUT_KEY_LEFT:
         case GLUT_KEY_RIGHT:
-            CameraController::get_instance().set_arrow_state(key, state);
-            return;
-        default:
+            camera_controller.set_arrow_state(key, state);
             return;
     }
 }
@@ -246,8 +251,8 @@ void speckey_up(int key, int, int)
 
 void motion(int x, int y)
 {
-    CameraController::get_instance().set_mouse_state('x', x);
-    CameraController::get_instance().set_mouse_state('y', y);
+    camera_controller.set_mouse_state('x', x);
+    camera_controller.set_mouse_state('y', y);
 }
 
 void mouse(int button, int state, int x, int y)
@@ -257,14 +262,14 @@ void mouse(int button, int state, int x, int y)
         case 0:
         case 1:
         case 2:
-            CameraController::get_instance().set_mouse_state(button, state);
+            camera_controller.set_mouse_state(button, state);
             motion(x, y);
             return;
         case 3: // колёсико вверх
-            Camera::get_instance().zoom(0.05);
+            camera.zoom(0.05);
             return;
         case 4: // колёсико вниз
-            Camera::get_instance().zoom(-0.05);
+            camera.zoom(-0.05);
             return;
         default:
             return;
@@ -278,6 +283,8 @@ void sigint_handler(int param)
 
 int main(int argc,char **argv)
 {
+    namespace fs = std::experimental::filesystem;
+
     // инициализация библиотеки GLUT
     glutInit(&argc,argv);
     // инициализация дисплея (формат вывода)
@@ -304,9 +311,11 @@ int main(int argc,char **argv)
     std::cout << "OpenGL Version = " << glGetString(GL_VERSION) << std::endl << std::endl;
 
     // загрузка шейдера
-    shader.load_vertex_shader ("../shaders/cube.vsh"s, false);
-    shader.load_fragment_shader ("../shaders/cube.fsh"s, false);
-    shader.link();
+    auto exec_path = Extensions::resolve_dots(fs::current_path() / std::string(argv[0]));
+    fs::path shader_basename = exec_path.parent_path().parent_path() / "shaders" / "cube";
+    shader.load_vertex_shader (shader_basename.replace_extension(".vsh"), false);
+    shader.load_fragment_shader (shader_basename.replace_extension(".fsh"), false);
+    shader.link(false);
 
     // устанавливаем функцию, которая будет вызываться для перерисовки окна
     glutDisplayFunc(display);

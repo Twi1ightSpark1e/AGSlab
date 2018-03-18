@@ -1,5 +1,10 @@
 #include <cgraphics/Camera.hpp>
 
+#include <glm/gtc/matrix_transform.hpp>
+
+#include <cmath>
+#include <fstream>
+
 Camera::Camera() : 
     center(0, 0, 0),
     up(0, 1, 0)
@@ -32,17 +37,17 @@ Camera::~Camera()
     #endif
 }
 
-Camera &Camera::get_instance()
+/*Camera &Camera::get_instance()
 {
     static Camera instance;
     return instance;
-}
+}*/
 
 void Camera::calculate_vectors()
 {
     auto distance = radius * std::cos(radian_y);
     eye.x = distance * std::cos(radian_x);
-    eye.y = radius * std::sin(radian_y);
+    eye.y =   radius * std::sin(radian_y);
     eye.z = distance * std::sin(radian_x);
 
     view = glm::lookAt(eye + center, center, up);
@@ -53,12 +58,12 @@ void Camera::set_projection_matrix(float fovy, float aspect, float z_near, float
     projection = glm::perspective(fovy, aspect, z_near, z_far);
 }
 
-glm::mat4 Camera::get_projection_matrix()
+const glm::mat4 &Camera::get_projection_matrix() const
 {
     return projection;
 }
 
-glm::mat4 Camera::get_view_matrix()
+const glm::mat4 &Camera::get_view_matrix() const
 {
     return view;
 }

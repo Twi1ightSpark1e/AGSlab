@@ -1,4 +1,13 @@
+#include <cgraphics/Extensions.hpp>
 #include <cgraphics/Shader.hpp>
+
+#include <GL/freeglut.h>
+
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include <algorithm>
+#include <iostream>
 
 void Shader::load_shader(GLuint &id, GLenum type, const std::vector<std::string> &text, bool debug)
 {
@@ -37,23 +46,23 @@ void Shader::load_shader(GLuint &id, GLenum type, const std::vector<std::string>
     delete[] lengths;
 }
 
-void Shader::load_vertex_shader(const std::string &filename, bool debug)
+void Shader::load_vertex_shader(const std::experimental::filesystem::path &file, bool debug)
 {
     if (debug)
     {
-        std::cout << "Loading " << filename << std::endl;
+        std::cout << "Loading " << file << std::endl;
     }
-    auto shader = Extensions::read_file(filename);
+    auto shader = Extensions::read_file(file);
     load_shader(vsh, GL_VERTEX_SHADER, shader, debug);
 }
 
-void Shader::load_fragment_shader(const std::string &filename, bool debug)
+void Shader::load_fragment_shader(const std::experimental::filesystem::path &file, bool debug)
 {
     if (debug)
     {
-        std::cout << "Loading " << filename << std::endl;
+        std::cout << "Loading " << file << std::endl;
     }
-    auto shader = Extensions::read_file(filename);
+    auto shader = Extensions::read_file(file);
     load_shader(fsh, GL_FRAGMENT_SHADER, shader, debug);
 }
 

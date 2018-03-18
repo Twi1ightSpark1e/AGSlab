@@ -1,13 +1,25 @@
 #include <cgraphics/CameraController.hpp>
 
-int CameraController::get_mouse_state(int button)
+#include <algorithm>
+
+int CameraController::get_mouse_state(int button) const
 {
-    return mouse[button];
+    auto it = mouse.find(button);
+    if (it != mouse.end())
+    {
+        return it->second;
+    }
+    return GLUT_UP;
 }
 
-int CameraController::get_mouse_state(char coordinate)
+int CameraController::get_mouse_state(char coordinate) const
 {
-    return mouse[(int)coordinate];
+    auto it = mouse.find((int)coordinate);
+    if (it != mouse.end())
+    {
+        return it->second;
+    }
+    return GLUT_UP;
 }
 
 void CameraController::set_mouse_state(int button, int state)
@@ -20,9 +32,14 @@ void CameraController::set_mouse_state(char coordinate, int value)
     mouse[(int)coordinate] = value;
 }
 
-int CameraController::get_arrow_state(int code)
+int CameraController::get_arrow_state(int code) const
 {
-    return arrows[code];
+    auto it = arrows.find(code);
+    if (it != arrows.end())
+    {
+        return it->second;
+    }
+    return GLUT_UP;
 }
 
 void CameraController::set_arrow_state(int code, int value)

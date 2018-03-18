@@ -1,20 +1,26 @@
 #include <cgraphics/Extensions.hpp>
 
-std::vector<std::string> Extensions::read_file(const std::string &filename)
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+
+namespace fs = std::experimental::filesystem;
+
+std::vector<std::string> Extensions::read_file(const std::experimental::filesystem::path &file)
 {
     std::vector<std::string> temp;
-    std::ifstream file(filename);
-    if (!file.is_open())
+    std::ifstream txt(file);
+    if (!txt.is_open())
     {
-        std::cerr << "File " << filename << " not found! Exitting" << std::endl;
+        std::cerr << "File " << file << " not found! Exitting" << std::endl;
         exit(1);
     }
-    while (std::getline(file, temp.emplace_back())) {}
-    file.close();
+    while (std::getline(txt, temp.emplace_back())) {}
+    txt.close();
     return temp;
 }
 
-std::tuple<GLchar**,GLint*> Extensions::vector_to_array(std::vector<std::string> vector)
+std::tuple<GLchar**,GLint*> Extensions::vector_to_array(const std::vector<std::string> &vector)
 {
     auto strs = new GLchar*[vector.size()];
     auto lengths = new GLint[vector.size()];
@@ -36,4 +42,19 @@ void Extensions::remove_array(GLchar **array, int length)
         delete[] array[i];
     }
     delete[] array;
+}
+
+fs::path Extensions::resolve_dots(const fs::path &path)
+{
+    auto tmp = path.string();
+    while (tmp.find("/./") != std::string::npos)
+    {
+        tmp.replace(tmp.find("/./"), 3, "/");
+    }
+    while (tmp.find("/../") != std::string::npos)
+    {
+        auto p = fs::path(tmp.substr(0, tmp.find("/../"))).parent_path();
+        tmp = p.string() + tmp.substr(tmp.find("/../") + 3);
+    }
+    return fs::path(tmp);
 }

@@ -19,8 +19,8 @@ private:
     GLuint vao_index, vbo_index;
     int    vertex_count;
 public:
-    Mesh() {}
-    Mesh(const std::experimental::filesystem::path &file)
+    Mesh() = default;
+    explicit Mesh(const std::experimental::filesystem::path &file)
     {
         load(file);
     }

@@ -290,7 +290,7 @@ void mouse(int button, int state, int x, int y)
     }
 }
 
-void sigint_handler(int param)
+void sigint_handler(int)
 {
     glutLeaveMainLoop();
 }

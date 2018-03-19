@@ -19,13 +19,14 @@ private:
         {GLUT_KEY_DOWN,      GLUT_UP}
     };
 
-    CameraController() {};
-    ~CameraController() {};
+    CameraController() = default;
+    ~CameraController() = default;
+public:
     CameraController(const CameraController&) = delete;
     CameraController(CameraController&&) = delete;
     CameraController& operator=(const CameraController&) = delete;
     CameraController& operator=(CameraController&&) = delete;
-public:
+
     int get_mouse_state(int button) const;
     int get_mouse_state(char coordinate) const;
     void set_mouse_state(int button, int state);
@@ -34,5 +35,5 @@ public:
     int get_arrow_state(int code) const;
     void set_arrow_state(int code, int value);
 
-    static CameraController& get_instance();
+    static CameraController& get_instance() noexcept;
 };

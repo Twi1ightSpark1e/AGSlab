@@ -14,7 +14,7 @@ private:
 
     void calculate_vectors();
 public:
-    Camera();
+    Camera() noexcept;
     // clang-tidy, shut up!
     Camera(const Camera&) = default;
     Camera(Camera&&) = default;

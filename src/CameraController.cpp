@@ -47,7 +47,7 @@ void CameraController::set_arrow_state(int code, int value)
     arrows[code] = value;
 }
 
-CameraController& CameraController::get_instance()
+CameraController& CameraController::get_instance() noexcept
 {
     static CameraController instance;
     return instance;

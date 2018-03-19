@@ -1,7 +1,6 @@
 #pragma once
 
 #include <GL/glew.h>
-//#include <GL/freeglut.h>
 
 #include <array>
 #include <experimental/filesystem>
@@ -17,7 +16,7 @@ struct Vertex
 class Mesh
 {
 private:
-    GLuint vao_index = -1, vbo_index = -1;
+    GLuint vao_index, vbo_index;
     int    vertex_count;
 public:
     Mesh() {}

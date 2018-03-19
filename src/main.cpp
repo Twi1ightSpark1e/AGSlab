@@ -111,10 +111,10 @@ void display()
         glm::vec4()
     );
     static std::tuple<glm::vec4, glm::vec4> cubes[] { // первый вектор - позиция, второй вектор - цвет
-        std::make_tuple(glm::vec4( 5, 0,  5, 1), glm::vec4 (1, 0, 0, 1)),
+        std::make_tuple(glm::vec4( 5, 1.2,  5, 1), glm::vec4 (1, 0, 0, 1)),
         std::make_tuple(glm::vec4(-2, 0, -2, 1), glm::vec4 (0, 1, 0, 1)),
         std::make_tuple(glm::vec4(-2, 0,  2, 1), glm::vec4 (0, 0, 1, 1)),
-        std::make_tuple(glm::vec4( 2, 0, -2, 1), glm::vec4 (1, 0, 1, 1)),
+        std::make_tuple(glm::vec4( 2, 0,  2, 1), glm::vec4 (1, 0, 1, 1)),
         std::make_tuple(glm::vec4( 0, 2,  0, 1), glm::vec4 (0, 0, 0, 1)),
     };
 

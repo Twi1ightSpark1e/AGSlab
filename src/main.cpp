@@ -8,6 +8,7 @@
 #include <cgraphics/Camera.hpp>
 #include <cgraphics/CameraController.hpp>
 #include <cgraphics/Extensions.hpp>
+#include <cgraphics/Mesh.hpp>
 
 #include <GL/freeglut.h>
 
@@ -20,6 +21,7 @@ Shader shader;
 // Камера
 Camera camera;
 CameraController& camera_controller = CameraController::get_instance();
+Mesh mesh_cube;
 
 // функция вывода плоскости
 void draw_cube(Shader &shader) {
@@ -109,7 +111,7 @@ void display()
         glm::vec4()
     );
     static std::tuple<glm::vec4, glm::vec4> cubes[] { // первый вектор - позиция, второй вектор - цвет
-        std::make_tuple(glm::vec4( 2, 0,  2, 1), glm::vec4 (1, 0, 0, 1)),
+        std::make_tuple(glm::vec4( 5, 0,  5, 1), glm::vec4 (1, 0, 0, 1)),
         std::make_tuple(glm::vec4(-2, 0, -2, 1), glm::vec4 (0, 1, 0, 1)),
         std::make_tuple(glm::vec4(-2, 0,  2, 1), glm::vec4 (0, 0, 1, 1)),
         std::make_tuple(glm::vec4( 2, 0, -2, 1), glm::vec4 (1, 0, 1, 1)),
@@ -131,13 +133,20 @@ void display()
     shader.activate();
     // инициализируем uniform-переменные
     shader.set_uniform_mat4("ProjectionMatrix"s, projection);
+    bool mesh_shown = false;
     for (auto cube : cubes)
     {
         model[3] = std::get<0>(cube);
         shader.set_uniform_mat4("ModelViewMatrix"s, view * model);
         shader.set_uniform_vec4("Color"s, std::get<1>(cube));
         // выводим объект
-        draw_cube(shader);
+        if (!mesh_shown)
+        {
+            mesh_cube.render();
+            //std::cout << "mesh shown" << std::endl;
+            mesh_shown = true;
+        }
+        else draw_cube(shader);
     }
 
     glutSwapBuffers();
@@ -310,11 +319,22 @@ int main(int argc,char **argv)
     // определение текущей версии OpenGL
     std::cout << "OpenGL Version = " << glGetString(GL_VERSION) << std::endl << std::endl;
 
-    // загрузка шейдера
+    // определение пути с исполняемым файлом
     auto exec_path = Extensions::resolve_dots(fs::current_path() / std::string(argv[0]));
-    fs::path shader_basename = exec_path.parent_path().parent_path() / "shaders" / "cube";
+    // поднимаемся на одну директорию вверх, так как сборка идёт в папке build
+    // parent_path два раза, так как fs::path считает имя исполняемого файла за имя директории
+    auto base_path = exec_path.parent_path().parent_path();
+    // шейдеры, используемые в данной лабораторной работе, лежат в папке shaders
+    // и имеют общее название cube
+    fs::path shader_basename = base_path / "shaders" / "cube";
+    // модели лежат в папке meshes
+    fs::path meshes_folder = base_path / "meshes";
+    // загружаем модель аптеки
+    mesh_cube.load(meshes_folder / "drug_store.obj");
+    // загружаем вершинный и фрагментный шейдеры
     shader.load_vertex_shader (shader_basename.replace_extension(".vsh"), false);
     shader.load_fragment_shader (shader_basename.replace_extension(".fsh"), false);
+    // связываем шейдеры в программу
     shader.link(false);
 
     // устанавливаем функцию, которая будет вызываться для перерисовки окна
@@ -325,15 +345,16 @@ int main(int argc,char **argv)
     glutIdleFunc(simulation);
     // функция, которая регистрирует перемещение мыши с зажатой кнопкой
     glutMotionFunc(motion);
-    // функйия, которая вызывается каждый раз, когда нажимается кнопка мыши, или крутится колесо
+    // функция, которая вызывается каждый раз, когда нажимается кнопка мыши, или крутится колесо
     glutMouseFunc(mouse);
-    // функция обработки специальных кнопок
+    // функции обработки специальных кнопок
     glutSpecialFunc(speckey_down);
     glutSpecialUpFunc(speckey_up);
     // убираем повторение кнопок, т.к. мы регистрируем моменты нажатия и отпускания
     glutSetKeyRepeat(GL_FALSE);
-    // основной цикл обработки сообщений ОС
+    // обработчик сигнала SIGINT для корректного выхода из программы
     signal(SIGINT, sigint_handler);
+    // основной цикл обработки сообщений ОС
     glutMainLoop();
     return 0;
 };

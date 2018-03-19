@@ -18,7 +18,8 @@ set(SOURCES
     "src/Shader.cpp"
     "src/Extensions.cpp"
     "src/Camera.cpp"
-    "src/CameraController.cpp")
+    "src/CameraController.cpp"
+    "src/Mesh.cpp")
 
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)

@@ -21,7 +21,7 @@ Shader shader;
 // Камера
 Camera camera;
 CameraController& camera_controller = CameraController::get_instance();
-Mesh mesh_cube;
+Mesh mesh_drug_store, mesh_tree;
 
 // функция вывода плоскости
 void draw_cube(Shader &shader) {
@@ -111,8 +111,8 @@ void display()
         glm::vec4()
     );
     static std::tuple<glm::vec4, glm::vec4> cubes[] { // первый вектор - позиция, второй вектор - цвет
-        std::make_tuple(glm::vec4( 5, 1.2,  5, 1), glm::vec4 (1, 0, 0, 1)),
-        std::make_tuple(glm::vec4(-2, 0, -2, 1), glm::vec4 (0, 1, 0, 1)),
+        std::make_tuple(glm::vec4( 5, 0,  5, 1), glm::vec4 (1, 0, 0, 1)),
+        std::make_tuple(glm::vec4(10, 0,  5, 1), glm::vec4 (0, 1, 0, 1)),
         std::make_tuple(glm::vec4(-2, 0,  2, 1), glm::vec4 (0, 0, 1, 1)),
         std::make_tuple(glm::vec4( 2, 0,  2, 1), glm::vec4 (1, 0, 1, 1)),
         std::make_tuple(glm::vec4( 0, 2,  0, 1), glm::vec4 (0, 0, 0, 1)),
@@ -133,18 +133,23 @@ void display()
     shader.activate();
     // инициализируем uniform-переменные
     shader.set_uniform_mat4("ProjectionMatrix"s, projection);
-    bool mesh_shown = false;
+    bool mesh_store_shown = false, mesh_tree_shown = false;
     for (auto cube : cubes)
     {
         model[3] = std::get<0>(cube);
         shader.set_uniform_mat4("ModelViewMatrix"s, view * model);
         shader.set_uniform_vec4("Color"s, std::get<1>(cube));
         // выводим объект
-        if (!mesh_shown)
+        if (!mesh_store_shown)
         {
-            mesh_cube.render();
+            mesh_drug_store.render();
             //std::cout << "mesh shown" << std::endl;
-            mesh_shown = true;
+            mesh_store_shown = true;
+        }
+        else if (!mesh_tree_shown)
+        {
+            mesh_tree.render();
+            mesh_tree_shown = true;
         }
         else draw_cube(shader);
     }
@@ -330,7 +335,8 @@ int main(int argc,char **argv)
     // модели лежат в папке meshes
     fs::path meshes_folder = base_path / "meshes";
     // загружаем модель аптеки
-    mesh_cube.load(meshes_folder / "drug_store.obj");
+    mesh_drug_store.load(meshes_folder / "buildings" / "drug_store.obj");
+    mesh_tree.load(meshes_folder / "natures" / "big_tree.obj");
     // загружаем вершинный и фрагментный шейдеры
     shader.load_vertex_shader (shader_basename.replace_extension(".vsh"), false);
     shader.load_fragment_shader (shader_basename.replace_extension(".fsh"), false);

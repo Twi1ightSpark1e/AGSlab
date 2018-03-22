@@ -11,11 +11,11 @@ void Mesh::load(const fs::path &file)
 {
     // регулярные выражения для поиска нужных строк
     // строка с текстурными координатами
-    static const std::regex       texture_matcher(R"(^vt (-?\d*\.{0,1}\d+) (-?\d*\.{0,1}\d+))");
+    static const std::regex       texture_matcher(R"(^vt (-?\d*\.{0,1}\d+) (-?\d*\.{0,1}\d+)[\r\n]+)");
     // строка с вершинами
-    static const std::regex          face_matcher(R"(^f (\d+)/(\d+)/(\d+) (\d+)/(\d+)/(\d+) (\d+)/(\d+)/(\d+))");
+    static const std::regex          face_matcher(R"(^f (\d+)/(\d+)/(\d+) (\d+)/(\d+)/(\d+) (\d+)/(\d+)/(\d+)[\r\n]+)");
     // строка с нормалями или с координатами вершин
-    static const std::regex vertex_normal_matcher(R"(^(?:vn|v) (-?\d*\.{0,1}\d+) (-?\d*\.{0,1}\d+) (-?\d*\.{0,1}\d+))");
+    static const std::regex vertex_normal_matcher(R"(^(?:vn|v) (-?\d*\.{0,1}\d+) (-?\d*\.{0,1}\d+) (-?\d*\.{0,1}\d+)[\r\n]+)");
     // место хранения захваченных групп
     std::smatch regex_groups;
 
@@ -27,7 +27,7 @@ void Mesh::load(const fs::path &file)
     std::string tmp;
     while (std::getline(obj, tmp))
     {
-        if (std::regex_search(tmp, regex_groups, vertex_normal_matcher))
+        if (std::regex_match(tmp, regex_groups, vertex_normal_matcher))
         {
             // строка, начинающаяся с 'vn' хранит в себе нормали, иначе координаты вершин
             auto &arr = (tmp.find("vn") == 0) ? normals.emplace_back() : vertices.emplace_back();
@@ -35,14 +35,15 @@ void Mesh::load(const fs::path &file)
             arr[1] = std::stof(regex_groups[2].str());
             arr[2] = std::stof(regex_groups[3].str());
         }
-        else if (std::regex_search(tmp, regex_groups, texture_matcher))
+        else if (std::regex_match(tmp, regex_groups, texture_matcher))
         {
             // строка хранит в себе текстурные координаты
-            auto &arr = textures.emplace_back();
-            arr[0] = std::stof(regex_groups[1].str());
-            arr[1] = std::stof(regex_groups[2].str());
+            textures.push_back({
+                std::stof(regex_groups[1].str()),
+                std::stof(regex_groups[2].str())
+            });
         }
-        else if (std::regex_search(tmp, regex_groups, face_matcher))
+        else if (std::regex_match(tmp, regex_groups, face_matcher))
         {
             // в строке находится по три вершины
             for (uint i = 0; i < 3; i++)

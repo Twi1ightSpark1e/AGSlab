@@ -8,7 +8,7 @@
 #include <cgraphics/Camera.hpp>
 #include <cgraphics/CameraController.hpp>
 #include <cgraphics/Extensions.hpp>
-#include <cgraphics/Mesh.hpp>
+#include <cgraphics/ResourceManager.hpp>
 
 #include <GL/freeglut.h>
 
@@ -16,87 +16,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+namespace fs = std::experimental::filesystem;
+
 // используемый шейдер (пока только один)
 Shader shader;
 // Камера
 Camera camera;
 CameraController& camera_controller = CameraController::get_instance();
-Mesh mesh_drug_store, mesh_tree;
-
-// функция вывода плоскости
-void draw_cube(Shader &shader) {
-    using namespace std::string_literals;
-// переменные для вывода объекта (прямоугольника из двух треугольников)
-    static GLuint vao_index = 0;    // индекс VAO-буфера
-    static GLuint vbo_index = 0;    // индекс VBO-буфера
-    static int    vertex_count = 0;  // количество вершин
-    static bool   init = true;
-    if (init) {
-        // создание и заполнение VBO
-        glGenBuffers(1, &vbo_index);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo_index);
-        GLfloat Verteces[] = {
-            // передняя грань
-            -0.5, +0.5, +0.5,
-            -0.5, -0.5, +0.5,
-            +0.5, +0.5, +0.5,
-            +0.5, +0.5, +0.5,
-            -0.5, -0.5, +0.5,
-            +0.5, -0.5, +0.5,
-            // задняя грань
-            +0.5, +0.5, -0.5,
-            +0.5, -0.5, -0.5,
-            -0.5, +0.5, -0.5,
-            -0.5, +0.5, -0.5,
-            +0.5, -0.5, -0.5,
-            -0.5, -0.5, -0.5,
-            // правая грань
-            +0.5, -0.5, +0.5,
-            +0.5, -0.5, -0.5,
-            +0.5, +0.5, +0.5,
-            +0.5, +0.5, +0.5,
-            +0.5, -0.5, -0.5,
-            +0.5, +0.5, -0.5,
-            // левая грань
-            -0.5, +0.5, +0.5,
-            -0.5, +0.5, -0.5,
-            -0.5, -0.5, +0.5,
-            -0.5, -0.5, +0.5,
-            -0.5, +0.5, -0.5,
-            -0.5, -0.5, -0.5,
-            // верхняя грань
-            -0.5, +0.5, -0.5,
-            -0.5, +0.5, +0.5,
-            +0.5, +0.5, -0.5,
-            +0.5, +0.5, -0.5,
-            -0.5, +0.5, +0.5,
-            +0.5, +0.5, +0.5,
-            // нижняя грань
-            -0.5, -0.5, +0.5,
-            -0.5, -0.5, -0.5,
-            +0.5, -0.5, +0.5,
-            +0.5, -0.5, +0.5,
-            -0.5, -0.5, -0.5,
-            +0.5, -0.5, -0.5
-        };
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Verteces), Verteces, GL_STATIC_DRAW);
-        // создание VAO
-        glGenVertexArrays(1, &vao_index);
-        glBindVertexArray(vao_index);
-        // заполнение VAO
-        glBindBuffer(GL_ARRAY_BUFFER, vbo_index);
-        int k = shader.get_attrib_location("vPosition"s);
-        glVertexAttribPointer(k, 3, GL_FLOAT, GL_TRUE, 0, nullptr);
-        glEnableVertexAttribArray(k);
-        // "отвязка" буфера VAO, чтоб случайно не испортить
-        glBindVertexArray(0);
-        // указание количество вершин
-        vertex_count = 6*6;
-        init = false;
-    }
-    glBindVertexArray(vao_index);
-    glDrawArrays(GL_TRIANGLES, 0, vertex_count);
-}
+fs::path meshes_folder;
 
 // функция вызывается при перерисовке окна
 // в том числе и принудительно, по командам glutPostRedisplay
@@ -110,12 +37,13 @@ void display()
         glm::vec4(0, 0, 1, 0),
         glm::vec4()
     );
-    static std::tuple<glm::vec4, glm::vec4> cubes[] { // первый вектор - позиция, второй вектор - цвет
-        std::make_tuple(glm::vec4( 5, 0,  5, 1), glm::vec4 (1, 0, 0, 1)),
-        std::make_tuple(glm::vec4(10, 0,  5, 1), glm::vec4 (0, 1, 0, 1)),
-        std::make_tuple(glm::vec4(-2, 0,  2, 1), glm::vec4 (0, 0, 1, 1)),
-        std::make_tuple(glm::vec4( 2, 0,  2, 1), glm::vec4 (1, 0, 1, 1)),
-        std::make_tuple(glm::vec4( 0, 2,  0, 1), glm::vec4 (0, 0, 0, 1)),
+    static std::tuple<glm::vec4, glm::vec4, fs::path> objects[] { // первый вектор - позиция, второй вектор - цвет, третий - путь к модели
+        std::make_tuple(glm::vec4(  0,  1,  0, 1), glm::vec4 (1, 0, 0, 1), meshes_folder / "buildings" / "drug_store.obj"),
+        std::make_tuple(glm::vec4(  1,  1,  5, 1), glm::vec4 (0, 1, 0, 1), meshes_folder / "natures" / "big_tree.obj"),
+        std::make_tuple(glm::vec4(-10,  1,  0, 1), glm::vec4 (0, 0, 1, 1), meshes_folder / "buildings" / "coffee.obj"),
+        std::make_tuple(glm::vec4( -3, .9,  5, 1), glm::vec4 (1, 0, 0, 1), meshes_folder / "props" / "bus_stop.obj"),
+        std::make_tuple(glm::vec4( -3,  0,  7, 1), glm::vec4 (1, 0, 1, 1), meshes_folder / "vehicles" / "car.obj"),
+        std::make_tuple(glm::vec4(  2,  0,  7, 1), glm::vec4 (1, 0, 1, 1), meshes_folder / "vehicles" / "car.obj"),
     };
 
     // отчищаем буфер цвета
@@ -126,32 +54,19 @@ void display()
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    auto projection = camera.get_projection_matrix();
-    auto view = camera.get_view_matrix();
+    const auto &projection = camera.get_projection_matrix();
+    const auto &view = camera.get_view_matrix();
 
     // активируем первый шейдер
     shader.activate();
     // инициализируем uniform-переменные
     shader.set_uniform_mat4("ProjectionMatrix"s, projection);
-    bool mesh_store_shown = false, mesh_tree_shown = false;
-    for (auto cube : cubes)
+    for (auto object : objects)
     {
-        model[3] = std::get<0>(cube);
+        model[3] = std::get<0>(object);
         shader.set_uniform_mat4("ModelViewMatrix"s, view * model);
-        shader.set_uniform_vec4("Color"s, std::get<1>(cube));
-        // выводим объект
-        if (!mesh_store_shown)
-        {
-            mesh_drug_store.render();
-            //std::cout << "mesh shown" << std::endl;
-            mesh_store_shown = true;
-        }
-        else if (!mesh_tree_shown)
-        {
-            mesh_tree.render();
-            mesh_tree_shown = true;
-        }
-        else draw_cube(shader);
+        shader.set_uniform_vec4("Color"s, std::get<1>(object));
+        ResourceManager::get_instance().get_mesh(std::get<2>(object)).render();
     }
 
     glutSwapBuffers();
@@ -333,10 +248,7 @@ int main(int argc,char **argv)
     // и имеют общее название cube
     fs::path shader_basename = base_path / "shaders" / "cube";
     // модели лежат в папке meshes
-    fs::path meshes_folder = base_path / "meshes";
-    // загружаем модель аптеки
-    mesh_drug_store.load(meshes_folder / "buildings" / "drug_store.obj");
-    mesh_tree.load(meshes_folder / "natures" / "big_tree.obj");
+    meshes_folder = base_path / "meshes";
     // загружаем вершинный и фрагментный шейдеры
     shader.load_vertex_shader (shader_basename.replace_extension(".vsh"), false);
     shader.load_fragment_shader (shader_basename.replace_extension(".fsh"), false);

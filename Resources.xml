@@ -1,0 +1,939 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resources>
+  
+  <Light>
+    <Direction vector="1.0 2.0 0.5"/>
+    <PhongParameters diffuse="1.0 1.0 1.0" ambient="1.0 1.0 1.0" specular="1.0 1.0 1.0"/>
+  </Light>
+  
+  <Shaders>
+    <Shader id="phong" vertex-path="shaders/phong_texture.vsh" fragment-path="shaders/phong_texture.fsh"/>
+    <Shader id="ident" vertex-path="shaders/identifier_to_color.vsh" fragment-path="shaders/identifier_to_color.fsh"/>
+    <Shader id="aabb" vertex-path="shaders/bounding_box.vsh" fragment-path="shaders/bounding_box.fsh"/>
+  </Shaders>
+
+  <Models>
+  
+    <!-- All Vehicles -->
+    <Model id="ambul" type="vehicle">
+      <Mesh path="meshes/vehicles/ambulance.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/ambulance.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="bus_bl" type="vehicle">
+      <Mesh path="meshes/vehicles/bus.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/bus_blue.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="bus_grn" type="vehicle">
+      <Mesh path="meshes/vehicles/bus.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/bus_green.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="bus_rd" type="vehicle">
+      <Mesh path="meshes/vehicles/bus.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/bus_red.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="car_bl" type="vehicle">
+      <Mesh path="meshes/vehicles/car.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/car_blue.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="car_gry" type="vehicle">
+      <Mesh path="meshes/vehicles/car.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/car_gray.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="car_wh" type="vehicle">
+      <Mesh path="meshes/vehicles/car.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/car_white.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="cont_bl" type="vehicle">
+      <Mesh path="meshes/vehicles/container.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/container_blue.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="cont_grn" type="vehicle">
+      <Mesh path="meshes/vehicles/container.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/container_green.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="cont_rd" type="vehicle">
+      <Mesh path="meshes/vehicles/container.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/container_red.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="jeep_br" type="vehicle">
+      <Mesh path="meshes/vehicles/jeep.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/jeep_brown.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="jeep_grn" type="vehicle">
+      <Mesh path="meshes/vehicles/jeep.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/jeep_green.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="jeep_pu" type="vehicle">
+      <Mesh path="meshes/vehicles/jeep.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/jeep_purple.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="pu_truck_bl" type="vehicle">
+      <Mesh path="meshes/vehicles/pick_up_truck.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/pick_up_truck_blue.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="pu_truck_gry" type="vehicle">
+      <Mesh path="meshes/vehicles/pick_up_truck.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/pick_up_truck_gray.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="pu_truck_rd" type="vehicle">
+      <Mesh path="meshes/vehicles/pick_up_truck.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/pick_up_truck_red.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="police" type="vehicle">
+      <Mesh path="meshes/vehicles/police_car.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/police_car.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="taxi" type="vehicle">
+      <Mesh path="meshes/vehicles/taxi.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/taxi.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="truck_gry" type="vehicle">
+      <Mesh path="meshes/vehicles/truck.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/truck_gray.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="truck_rd" type="vehicle">
+      <Mesh path="meshes/vehicles/truck.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/truck_red.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="truck_ye" type="vehicle">
+      <Mesh path="meshes/vehicles/truck.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/vehicles/truck_yellow.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    <!--=====================================================================================================-->
+    
+    <!-- All Natures -->
+    <Model id="big_tree" type="nature">
+      <Mesh path="meshes/natures/big_tree.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/natures/nature.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="bush_1" type="nature">
+      <Mesh path="meshes/natures/bush_1.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/natures/nature.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="bush_2" type="nature">
+      <Mesh path="meshes/natures/bush_2.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/natures/nature.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="bush_3" type="nature">
+      <Mesh path="meshes/natures/bush_3.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/natures/nature.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="cube_tree" type="nature">
+      <Mesh path="meshes/natures/cube_tree.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/natures/nature.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="fir_tree" type="nature">
+      <Mesh path="meshes/natures/fir_tree.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/natures/nature.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="grass_bar" type="nature">
+      <Mesh path="meshes/natures/grass_bar.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/natures/nature.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="grass_fc" type="nature">
+      <Mesh path="meshes/natures/grass_fence.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/natures/nature.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="grass_ts" type="nature">
+      <Mesh path="meshes/natures/grass_tile_small.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/natures/nature.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="house_fl" type="nature">
+      <Mesh path="meshes/natures/house_floor.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/natures/nature.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="natures_gr" type="nature">
+      <Mesh path="meshes/natures/natures_grass_tile.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/natures/nature.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="pot_bu_b" type="nature">
+      <Mesh path="meshes/natures/pot_bush_big.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/natures/nature.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="pot_bu_s" type="nature">
+      <Mesh path="meshes/natures/pot_bush_small.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/natures/nature.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="rock_bg" type="nature">
+      <Mesh path="meshes/natures/rock_big.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/natures/nature.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="rock_sm" type="nature">
+      <Mesh path="meshes/natures/rock_small.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/natures/nature.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    <!--=====================================================================================================-->
+    
+    <!-- All Roads -->
+    <Model id="road_cor_1" type="road">
+      <Mesh path="meshes/roads/road_corner_1.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/roads/road.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="road_cor_2" type="road">
+      <Mesh path="meshes/roads/road_corner_2.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/roads/road.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="road_int_1" type="road">
+      <Mesh path="meshes/roads/road_intersection_1.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/roads/road.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="road_int_2" type="road">
+      <Mesh path="meshes/roads/road_intersection_2.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/roads/road.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="road_ln_1" type="road">
+      <Mesh path="meshes/roads/road_lane_1.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/roads/road.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="road_ln_2" type="road">
+      <Mesh path="meshes/roads/road_lane_2.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/roads/road.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="road_ln_3" type="road">
+      <Mesh path="meshes/roads/road_lane_3.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/roads/road.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="road_ln_4" type="road">
+      <Mesh path="meshes/roads/road_lane_4.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/roads/road.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="road_ln_bs" type="road">
+      <Mesh path="meshes/roads/road_lane_bus_stop.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/roads/road.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="road_lh" type="road">
+      <Mesh path="meshes/roads/road_lane_half.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/roads/road.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="road_sh" type="road">
+      <Mesh path="meshes/roads/road_split_line.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/roads/road.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="tile" type="road">
+      <Mesh path="meshes/roads/tile.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/roads/road.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="tile_int_1" type="road">
+      <Mesh path="meshes/roads/tile_intersection_1.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/roads/road.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="tile_int_2" type="road">
+      <Mesh path="meshes/roads/tile_intersection_2.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/roads/road.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="tile_sm" type="road">
+      <Mesh path="meshes/roads/tile_small.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/roads/road.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    <!--=====================================================================================================-->
+    
+    <!-- All Props -->
+    <Model id="bench_1" type="prop">
+      <Mesh path="meshes/props/bench_1.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="bench_2" type="prop">
+      <Mesh path="meshes/props/bench_2.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="billbrd_l" type="prop">
+      <Mesh path="meshes/props/billboard_large.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/billboard_large.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="billbrd_m" type="prop">
+      <Mesh path="meshes/props/billboard_medium.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/billboard_medium.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="billbrd_s" type="prop">
+      <Mesh path="meshes/props/billboard_small.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/billboard_small.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="bus_stop" type="prop">
+      <Mesh path="meshes/props/bus_stop.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="coffee_chair" type="prop">
+      <Mesh path="meshes/props/coffee_chair.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/coffee.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="dustbin" type="prop">
+      <Mesh path="meshes/props/dustbin.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="fence" type="prop">
+      <Mesh path="meshes/props/fence.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="hydrant" type="prop">
+      <Mesh path="meshes/props/hydrant.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="antenna" type="prop">
+      <Mesh path="meshes/props/roof_antenna.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/roof_props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="helipad" type="prop">
+      <Mesh path="meshes/props/roof_helipad.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/roof_props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="roof_pr" type="prop">
+      <Mesh path="meshes/props/roof_prop.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/roof_props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="roof_pr_a" type="prop">
+      <Mesh path="meshes/props/roof_prop_air.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/roof_props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="solar_pan" type="prop">
+      <Mesh path="meshes/props/roof_solar_panel.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/roof_props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="light" type="prop">
+      <Mesh path="meshes/props/street_light.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/traffic_props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="traff_cone" type="prop">
+      <Mesh path="meshes/props/traffic_cone.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/traffic_props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="ctrll_barr_fence" type="prop">
+      <Mesh path="meshes/props/traffic_control_barrier_fence.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/traffic_props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="speed_lim" type="prop">
+      <Mesh path="meshes/props/traffic_sign_speed_limit.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/traffic_props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="sign_stop" type="prop">
+      <Mesh path="meshes/props/traffic_sign_stop.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/traffic_props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="signal_b" type="prop">
+      <Mesh path="meshes/props/traffic_signal_big.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/traffic_props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="signal_s" type="prop">
+      <Mesh path="meshes/props/traffic_signal_small.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/traffic_props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="windmill" type="prop">
+      <Mesh path="meshes/props/windmill.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/props/traffic_props.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <!-- All Buildings -->
+    <Model id="a_service" type="building">
+      <Mesh path="meshes/buildings/auto_service.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/auto_service.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="bakery" type="building">
+      <Mesh path="meshes/buildings/bakery.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/bakery.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="bar" type="building">
+      <Mesh path="meshes/buildings/bar.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/bar.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="books_sh" type="building">
+      <Mesh path="meshes/buildings/books_shop.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/books_shop.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="chicken_sh" type="building">
+      <Mesh path="meshes/buildings/chicken_shop.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/chicken_shop.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="clothing_sh" type="building">
+      <Mesh path="meshes/buildings/clothing_shop.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/clothing_shop.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="coffee" type="building">
+      <Mesh path="meshes/buildings/coffee.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/coffee.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="drug_st" type="building">
+      <Mesh path="meshes/buildings/drug_store.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/drug_store.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="factory" type="building">
+      <Mesh path="meshes/buildings/factory.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/factory.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="fast_food" type="building">
+      <Mesh path="meshes/buildings/fast_food.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/fast_food.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="fruits_sh" type="building">
+      <Mesh path="meshes/buildings/fruits_shop.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/fruits_shop.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="gas_st" type="building">
+      <Mesh path="meshes/buildings/gas_station.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/gas_station.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="gift_sh" type="building">
+      <Mesh path="meshes/buildings/gift_shop.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/gift_shop.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="house_1_bl" type="building">
+      <Mesh path="meshes/buildings/house_1.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/house_1_blue.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="house_1_or" type="building">
+      <Mesh path="meshes/buildings/house_1.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/house_1_orange.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="house_1_rd" type="building">
+      <Mesh path="meshes/buildings/house_1.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/house_1_red.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="house_2_gr" type="building">
+      <Mesh path="meshes/buildings/house_2.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/house_2_green.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="house_2_or" type="building">
+      <Mesh path="meshes/buildings/house_2.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/house_2_orange.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="house_2_rd" type="building">
+      <Mesh path="meshes/buildings/house_2.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/house_2_red.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="house_3_gr" type="building">
+      <Mesh path="meshes/buildings/house_3.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/house_3_green.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="house_3_or" type="building">
+      <Mesh path="meshes/buildings/house_3.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/house_3_orange.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="house_3_rd" type="building">
+      <Mesh path="meshes/buildings/house_3.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/house_3_red.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="house_4_bl" type="building">
+      <Mesh path="meshes/buildings/house_4.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/house_4_blue.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="house_4_gr" type="building">
+      <Mesh path="meshes/buildings/house_4.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/house_4_green.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="house_4_rd" type="building">
+      <Mesh path="meshes/buildings/house_4.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/house_4_red.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="music_st" type="building">
+      <Mesh path="meshes/buildings/music_store.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/music_store.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="pizza" type="building">
+      <Mesh path="meshes/buildings/pizza.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/pizza.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="resid_hs_gr" type="building">
+      <Mesh path="meshes/buildings/residential_house.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/residential_house_green.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="resid_hs_or" type="building">
+      <Mesh path="meshes/buildings/residential_house.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/residential_house_orange.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="resid_hs_rd" type="building">
+      <Mesh path="meshes/buildings/residential_house.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/residential_house_red.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="rest" type="building">
+      <Mesh path="meshes/buildings/restaurant.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/restaurant.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="shoes_sh" type="building">
+      <Mesh path="meshes/buildings/shoes_shop.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/shoes_shop.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="sky_b_bl" type="building">
+      <Mesh path="meshes/buildings/skyscraper_big.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/skyscraper_big_blue.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="sky_b_gr" type="building">
+      <Mesh path="meshes/buildings/skyscraper_big.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/skyscraper_big_green.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="sky_rd" type="building">
+      <Mesh path="meshes/buildings/skyscraper_big.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/skyscraper_big_red.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="sky_s_gr" type="building">
+      <Mesh path="meshes/buildings/skyscraper_small.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/skyscraper_small_green.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="sky_s_or" type="building">
+      <Mesh path="meshes/buildings/skyscraper_small.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/skyscraper_small_orange.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="sky_s_rd" type="building">
+      <Mesh path="meshes/buildings/skyscraper_small.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/skyscraper_small_red.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="stad" type="building">
+      <Mesh path="meshes/buildings/stadium.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/stadium.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+    <Model id="super_m" type="building">
+      <Mesh path="meshes/buildings/super_market.obj"/>
+      <Material mode="diffuse_texture">
+        <Texture path="textures/buildings/super_market.png"/>
+        <PhongParameters diffuse="0.85 0.85 0.85" ambient="0.35 0.35 0.35" specular="0.25 0.25 0.25" shininess="43.219"/>
+      </Material>
+    </Model>
+    
+  </Models>
+
+</Resources>

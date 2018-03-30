@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 namespace fs = std::experimental::filesystem;
 
@@ -57,4 +58,13 @@ fs::path Extensions::resolve_dots(const fs::path &path)
         tmp = p.string() + tmp.substr(tmp.find("/../") + 3);
     }
     return fs::path(tmp);
+}
+
+glm::vec4 Extensions::string_as_vec4(const std::string &str, const float &w)
+{
+    std::istringstream ss(str);
+    glm::vec4 v;
+    ss >> v.x >> v.y >> v.z;
+    v.w = w;
+    return v;
 }

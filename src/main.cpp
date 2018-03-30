@@ -4,11 +4,9 @@
 #include <experimental/filesystem>
 #include <iostream>
 
-#include <cgraphics/Shader.hpp>
-#include <cgraphics/Camera.hpp>
-#include <cgraphics/CameraController.hpp>
 #include <cgraphics/Extensions.hpp>
-#include <cgraphics/ResourceManager.hpp>
+#include <cgraphics/CameraController.hpp>
+#include <cgraphics/Scene.hpp>
 
 #include <GL/freeglut.h>
 
@@ -18,10 +16,9 @@
 
 namespace fs = std::experimental::filesystem;
 
-// используемый шейдер (пока только один)
-Shader shader;
+// сцена
+Scene scene;
 // Камера
-Camera camera;
 CameraController& camera_controller = CameraController::get_instance();
 fs::path meshes_folder;
 
@@ -29,45 +26,15 @@ fs::path meshes_folder;
 // в том числе и принудительно, по командам glutPostRedisplay
 void display()
 {
-    using namespace std::string_literals;
-
-    static auto model = glm::mat4(
-        glm::vec4(1, 0, 0, 0),
-        glm::vec4(0, 1, 0, 0),
-        glm::vec4(0, 0, 1, 0),
-        glm::vec4()
-    );
-    static std::tuple<glm::vec4, glm::vec4, fs::path> objects[] { // первый вектор - позиция, второй вектор - цвет, третий - путь к модели
-        std::make_tuple(glm::vec4(  0,  1,  0, 1), glm::vec4 (1, 0, 0, 1), meshes_folder / "buildings" / "drug_store.obj"),
-        std::make_tuple(glm::vec4(  1,  1,  5, 1), glm::vec4 (0, 1, 0, 1), meshes_folder / "natures" / "big_tree.obj"),
-        std::make_tuple(glm::vec4(-10,  1,  0, 1), glm::vec4 (0, 0, 1, 1), meshes_folder / "buildings" / "coffee.obj"),
-        std::make_tuple(glm::vec4( -3, .9,  5, 1), glm::vec4 (1, 0, 0, 1), meshes_folder / "props" / "bus_stop.obj"),
-        std::make_tuple(glm::vec4( -3,  0,  7, 1), glm::vec4 (1, 0, 1, 1), meshes_folder / "vehicles" / "car.obj"),
-        std::make_tuple(glm::vec4(  2,  0,  7, 1), glm::vec4 (1, 0, 1, 1), meshes_folder / "vehicles" / "car.obj"),
-    };
-
     // отчищаем буфер цвета
-    glClearColor (1.0, 1.0, 1.0, 1.0);
+    glClearColor (0.0, 0.0, 0.0, 1.0);
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glEnable (GL_DEPTH_TEST);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    const auto &projection = camera.get_projection_matrix();
-    const auto &view = camera.get_view_matrix();
-
-    // активируем первый шейдер
-    shader.activate();
-    // инициализируем uniform-переменные
-    shader.set_uniform_mat4("ProjectionMatrix"s, projection);
-    for (auto object : objects)
-    {
-        model[3] = std::get<0>(object);
-        shader.set_uniform_mat4("ModelViewMatrix"s, view * model);
-        shader.set_uniform_vec4("Color"s, std::get<1>(object));
-        ResourceManager::get_instance().get_mesh(std::get<2>(object)).render();
-    }
+    scene.draw();
 
     glutSwapBuffers();
 }
@@ -77,54 +44,8 @@ void reshape(int w,int h)
 {
     // установить новую область просмотра, равную всей области окна
     glViewport(0,0,(GLsizei)w, (GLsizei)h);
-    camera.set_projection_matrix(glm::radians(45.0), float(w) / float(h), .1, 1000);
+    scene.get_camera().set_projection_matrix(glm::radians(45.0), float(w) / float(h), .1, 1000);
 };
-
-void simulate_mouse()
-{
-    static int mouse_x, mouse_y, prev_button_state = GLUT_UP;
-
-    if ((prev_button_state == GLUT_UP) && 
-        (camera_controller.get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_DOWN))
-    {
-        mouse_x = camera_controller.get_mouse_state('x');
-        mouse_y = camera_controller.get_mouse_state('y');
-        prev_button_state = GLUT_DOWN;
-    }
-    else if ((prev_button_state == GLUT_DOWN) && 
-        (camera_controller.get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_DOWN))
-    {
-        float new_x = camera_controller.get_mouse_state('x');
-        float new_y = camera_controller.get_mouse_state('y');
-        camera.rotate((new_x - mouse_x) / 300, (new_y - mouse_y) / 300);
-        mouse_x = new_x;
-        mouse_y = new_y;
-    }
-    else if (camera_controller.get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_UP)
-    {
-        prev_button_state = GLUT_UP;
-    }
-}
-
-void simulate_keyboard(double delta_s)
-{
-    if (camera_controller.get_arrow_state(GLUT_KEY_LEFT) == GLUT_DOWN)
-    {
-        camera.move_oxz(0, -delta_s);
-    }
-    if (camera_controller.get_arrow_state(GLUT_KEY_UP) == GLUT_DOWN)
-    {
-        camera.move_oxz(delta_s, 0);
-    }
-    if (camera_controller.get_arrow_state(GLUT_KEY_RIGHT) == GLUT_DOWN)
-    {
-        camera.move_oxz(0, delta_s);
-    }
-    if (camera_controller.get_arrow_state(GLUT_KEY_DOWN) == GLUT_DOWN)
-    {
-        camera.move_oxz(-delta_s, 0);
-    }
-}
 
 // функция вызывается когда процессор простаивает, т.е. максимально часто
 void simulation()
@@ -142,8 +63,7 @@ void simulation()
     time_prev = time_current;
     frames++;
 
-    simulate_mouse();
-    simulate_keyboard(delta_s);
+    scene.simulate(delta_s);
 
     if (time_from_base >= 500)
     {
@@ -195,10 +115,10 @@ void mouse(int button, int state, int x, int y)
             motion(x, y);
             return;
         case 3: // колёсико вверх
-            camera.zoom(0.05);
+            scene.get_camera().zoom(0.05);
             return;
         case 4: // колёсико вниз
-            camera.zoom(-0.05);
+            scene.get_camera().zoom(-0.05);
             return;
         default:
             return;
@@ -212,8 +132,6 @@ void sigint_handler(int)
 
 int main(int argc,char **argv)
 {
-    namespace fs = std::experimental::filesystem;
-
     // инициализация библиотеки GLUT
     glutInit(&argc,argv);
     // инициализация дисплея (формат вывода)
@@ -226,7 +144,7 @@ int main(int argc,char **argv)
     // устанавливаем размер окна
     glutInitWindowSize(800,600);
     // создание окна
-    glutCreateWindow("laba_02");
+    glutCreateWindow("laba_04");
 
     //инициализация GLEW 
     glewExperimental = GL_TRUE;
@@ -242,18 +160,11 @@ int main(int argc,char **argv)
     // определение пути с исполняемым файлом
     auto exec_path = Extensions::resolve_dots(fs::current_path() / std::string(argv[0]));
     // поднимаемся на одну директорию вверх, так как сборка идёт в папке build
-    // parent_path два раза, так как fs::path считает имя исполняемого файла за имя директории
+    // parent_path два раза, так как сначала мы получаем родителя исполняемого файла,
+    // а затем - родителя родителя :^)
     auto base_path = exec_path.parent_path().parent_path();
-    // шейдеры, используемые в данной лабораторной работе, лежат в папке shaders
-    // и имеют общее название cube
-    fs::path shader_basename = base_path / "shaders" / "cube";
-    // модели лежат в папке meshes
-    meshes_folder = base_path / "meshes";
-    // загружаем вершинный и фрагментный шейдеры
-    shader.load_vertex_shader (shader_basename.replace_extension(".vsh"), false);
-    shader.load_fragment_shader (shader_basename.replace_extension(".fsh"), false);
-    // связываем шейдеры в программу
-    shader.link(false);
+    // инициализируем сцену
+    scene.init(base_path);
 
     // устанавливаем функцию, которая будет вызываться для перерисовки окна
     glutDisplayFunc(display);

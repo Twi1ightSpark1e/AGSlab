@@ -44,4 +44,6 @@ public:
     void set_uniform_vec4(const std::string &name, glm::vec4 value);
     // запись матрицы 4х4 в uniform-переменную
     void set_uniform_mat4(const std::string &name, glm::mat4 value);
+    // запись вещественного числа в uniform-переменную
+    void set_uniform_float(const std::string &name, float value);
 };

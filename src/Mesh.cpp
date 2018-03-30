@@ -11,11 +11,11 @@ void Mesh::load(const fs::path &file)
 {
     // регулярные выражения для поиска нужных строк
     // строка с текстурными координатами
-    static const std::regex       texture_matcher(R"(^vt (-?\d*\.{0,1}\d+) (-?\d*\.{0,1}\d+)[\r\n]+)");
+    static const std::regex       texture_matcher(R"(^vt (-?\d*\.{0,1}\d+) (-?\d*\.{0,1}\d+)[\r\n]*)");
     // строка с вершинами
-    static const std::regex          face_matcher(R"(^f (\d+)/(\d+)/(\d+) (\d+)/(\d+)/(\d+) (\d+)/(\d+)/(\d+)[\r\n]+)");
+    static const std::regex          face_matcher(R"(^f (\d+)/(\d+)/(\d+) (\d+)/(\d+)/(\d+) (\d+)/(\d+)/(\d+)[\r\n]*)");
     // строка с нормалями или с координатами вершин
-    static const std::regex vertex_normal_matcher(R"(^(?:vn|v) (-?\d*\.{0,1}\d+) (-?\d*\.{0,1}\d+) (-?\d*\.{0,1}\d+)[\r\n]+)");
+    static const std::regex vertex_normal_matcher(R"(^(?:vn|v) (-?\d*\.{0,1}\d+) (-?\d*\.{0,1}\d+) (-?\d*\.{0,1}\d+)[\r\n]*)");
     // место хранения захваченных групп
     std::smatch regex_groups;
 
@@ -56,6 +56,7 @@ void Mesh::load(const fs::path &file)
         }
     }
     obj.close();
+    //std::cout << file << " loaded (" << final_vertices.size() << " faces)" << std::endl;
     vertex_count = final_vertices.size();
     // если модель уже была загружена - удалим её
     if (vao_index != 0)

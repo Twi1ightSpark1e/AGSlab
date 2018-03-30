@@ -20,18 +20,22 @@ set(SOURCES
     "src/Camera.cpp"
     "src/CameraController.cpp"
     "src/Mesh.cpp"
-    "src/ResourceManager.cpp")
+    "src/ResourceManager.cpp"
+    "src/GraphicObject.cpp"
+    "src/Scene.cpp")
 
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(GLM REQUIRED)
+find_package(PugiXML REQUIRED)
 
 include_directories(
     ${OPENGL_INCLUDE_DIRS}
     ${GLUT_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
     ${GLM_INCLUDE_DIRS}
+    ${PUGIXML_INCLUDE_DIRS}
     "include"
 )
 
@@ -41,6 +45,7 @@ target_link_libraries(cgraphics
     ${OPENGL_LIBRARIES}
     ${GLUT_LIBRARIES}
     ${GLEW_LIBRARIES}
+    "pugixml"
     "stdc++fs"
 )
 

@@ -37,12 +37,6 @@ Camera::~Camera()
     #endif
 }
 
-/*Camera &Camera::get_instance()
-{
-    static Camera instance;
-    return instance;
-}*/
-
 void Camera::calculate_vectors()
 {
     auto distance = radius * std::cos(radian_y);
@@ -95,7 +89,7 @@ void Camera::rotate(double horizontal, double vertical)
 
 void Camera::zoom(double radius)
 {
-    static const double LOWER_BOUND = 2, UPPER_BOUND = 100;
+    static const double LOWER_BOUND = 2, UPPER_BOUND = 1000;
 
     if ((this->radius >= LOWER_BOUND) && (this->radius <= UPPER_BOUND))
     {

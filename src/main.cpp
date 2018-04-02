@@ -7,6 +7,7 @@
 #include <cgraphics/Extensions.hpp>
 #include <cgraphics/CameraController.hpp>
 #include <cgraphics/Scene.hpp>
+#include <cgraphics/RenderManager.hpp>
 
 #include <GL/freeglut.h>
 
@@ -26,17 +27,9 @@ fs::path meshes_folder;
 // в том числе и принудительно, по командам glutPostRedisplay
 void display()
 {
-    // отчищаем буфер цвета
-    glClearColor (0.0, 0.0, 0.0, 1.0);
-    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    glEnable (GL_DEPTH_TEST);
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-
+    RenderManager::get_instance().start();
     scene.draw();
-
-    glutSwapBuffers();
+    RenderManager::get_instance().finish();
 }
 
 // функция, вызываемая при изменении размеров окна

@@ -22,7 +22,8 @@ set(SOURCES
     "src/Mesh.cpp"
     "src/ResourceManager.cpp"
     "src/GraphicObject.cpp"
-    "src/Scene.cpp")
+    "src/Scene.cpp"
+    "src/RenderManager.cpp")
 
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)

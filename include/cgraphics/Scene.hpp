@@ -14,7 +14,6 @@
 class Scene
 {
 private:
-    Shader shader;
     Camera camera;
     Light  light;
     std::vector<GraphicObject> objects;

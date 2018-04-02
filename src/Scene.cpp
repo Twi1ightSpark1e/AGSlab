@@ -2,15 +2,28 @@
 #include <cgraphics/CameraController.hpp>
 #include <cgraphics/Extensions.hpp>
 #include <cgraphics/ResourceManager.hpp>
+#include <cgraphics/RenderManager.hpp>
 
 #include <GL/freeglut.h>
 
 #include <iostream>
+#include <tuple>
 
 namespace fs = std::experimental::filesystem;
 
 void Scene::init(const fs::path &base_path)
 {
+    static std::vector<std::tuple<std::string,glm::vec3,float>> scene = 
+    {
+        std::make_tuple("drug_st",  glm::vec3(   0, 1,   0),   0),
+        std::make_tuple("big_tree", glm::vec3(   1, 1,   5),   0),
+        std::make_tuple("coffee",   glm::vec3( -10, 1,   0),   0),
+        std::make_tuple("bus_stop", glm::vec3(  -3, 0.9, 5),   0),
+        std::make_tuple("car_wh",   glm::vec3(  -3, 0,   7),   0),
+        std::make_tuple("car_wh",   glm::vec3(   2, 0,   7),   0),
+        std::make_tuple("light",    glm::vec3(-5.5, 1, 4.4), -90)
+    };
+
     this->base_path = base_path;
 
     auto result = xml.load_file((base_path / "Resources.xml").c_str());
@@ -20,25 +33,14 @@ void Scene::init(const fs::path &base_path)
         return;
     }
 
-    auto object = create_graphic_object("house_1_bl");
-    object.set_position(glm::vec3(0, 0, 0));
-    object.set_rotation(0);
-    objects.push_back(object);
-
-    object = create_graphic_object("light");
-    object.set_position(glm::vec3(-6.5, -0.55,   3));
-    object.set_rotation(-90);
-    objects.push_back(object);
-
-    object = create_graphic_object("light");
-    object.set_position(glm::vec3( 6.5, -0.55,   3));
-    object.set_rotation(-89);
-    objects.push_back(object);
-
-    object = create_graphic_object("ambul");
-    object.set_position(glm::vec3( 2.5,  -1.7, 5.2));
-    object.set_rotation(0);
-    objects.push_back(object);
+    GraphicObject object;
+    for (auto scene_object : scene)
+    {
+        object = create_graphic_object(std::get<0>(scene_object));
+        object.set_position(std::get<1>(scene_object));
+        object.set_rotation(std::get<2>(scene_object));
+        objects.push_back(object);
+    }
 
     auto xml_resources = xml.child("Resources");
 
@@ -51,9 +53,10 @@ void Scene::init(const fs::path &base_path)
 
     auto xml_shaders = xml_resources.child("Shaders");
     auto xml_shader_phong = xml_shaders.find_child_by_attribute("id", "phong");
-    shader.load_vertex_shader(base_path / xml_shader_phong.attribute("vertex-path").value(), false);
-    shader.load_fragment_shader(base_path / xml_shader_phong.attribute("fragment-path").value(), false);
-    shader.link(false);
+    RenderManager::get_instance().init(
+        base_path / xml_shader_phong.attribute("vertex-path").value(),
+        base_path / xml_shader_phong.attribute("fragment-path").value()
+    );
 }
 
 void Scene::simulate(double seconds)
@@ -64,27 +67,12 @@ void Scene::simulate(double seconds)
 
 void Scene::draw()
 {
-    shader.activate();
-
-    const auto &projection = camera.get_projection_matrix();
-    const auto &view = camera.get_view_matrix();
-
-    shader.set_uniform_mat4("ProjectionMatrix", projection);
-    shader.set_uniform_vec4("lAmbient", light.get_ambient());
-    shader.set_uniform_vec4("lDiffuse", light.get_diffuse());
-    shader.set_uniform_vec4("lSpecular", light.get_specular());
-    shader.set_uniform_vec4("lPosition", view * light.get_position());
-    shader.set_uniform_float("SpecularPow", 64);
+    RenderManager::get_instance().set_camera(camera);
+    RenderManager::get_instance().set_light(light);
 
     for (auto &object : objects)
     {
-        auto model = object.get_model();
-        shader.set_uniform_mat4("ModelViewMatrix", view * model);
-        auto material = object.get_material();
-        shader.set_uniform_vec4("mAmbient", material.get_ambient());
-        shader.set_uniform_vec4("mDiffuse", material.get_diffuse());
-        shader.set_uniform_vec4("mSpecular", material.get_specular());
-        ResourceManager::get_instance().get_mesh(object.get_mesh()).render();
+        RenderManager::get_instance().add_to_queue(object);
     }
 }
 

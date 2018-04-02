@@ -99,7 +99,7 @@ void Mesh::load(const fs::path &file)
     glBindVertexArray(0);
 }
 
-void Mesh::render()
+void Mesh::render() const
 {
     // начинаем работу с созданным VAO
     glBindVertexArray(vao_index);

@@ -26,5 +26,5 @@ public:
     }
 
     void load(const std::experimental::filesystem::path &file);
-    void render();
+    void render() const;
 };

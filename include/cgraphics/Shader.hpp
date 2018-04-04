@@ -25,6 +25,7 @@ private:
     int get_uniform_location(const std::string &name);
 
 public:
+    GLuint get_program() const;
     // загрузить вершинный шейдер
     void load_vertex_shader(const std::experimental::filesystem::path &file, bool debug = true);
     // загрузить фрагментный шейдер

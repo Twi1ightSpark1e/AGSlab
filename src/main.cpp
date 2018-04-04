@@ -1,3 +1,4 @@
+#include <array>
 #include <cstdio>
 #include <chrono>
 #include <csignal>
@@ -38,7 +39,7 @@ void reshape(int w,int h)
     // установить новую область просмотра, равную всей области окна
     glViewport(0,0,(GLsizei)w, (GLsizei)h);
     scene.get_camera().set_projection_matrix(glm::radians(45.0), float(w) / float(h), .1, 1000);
-};
+}
 
 // функция вызывается когда процессор простаивает, т.е. максимально часто
 void simulation()
@@ -60,7 +61,8 @@ void simulation()
 
     if (time_from_base >= 500)
     {
-        glutSetWindowTitle(("FPS: " + std::to_string(int(frames * 1000. / time_from_base))).c_str());
+        glutSetWindowTitle(("FPS: " + std::to_string(int(frames * 1000. / time_from_base)) + 
+            "; UBO Updates = " + std::to_string(RenderManager::get_update_count())).c_str());
         time_base = time_current;
         frames = 0;
     }
@@ -179,5 +181,4 @@ int main(int argc,char **argv)
     // основной цикл обработки сообщений ОС
     glutMainLoop();
     return 0;
-};
-
+}

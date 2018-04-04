@@ -53,4 +53,19 @@ public:
     {
         return shininess;
     }
+
+    bool operator==(const Material &b) const
+    {
+        return ((ambient == b.ambient) &&
+            (diffuse == b.diffuse) && 
+            (specular == b.specular) && 
+            (shininess == b.shininess));
+    }
+    bool operator!=(const Material &b) const
+    {
+        return ((ambient != b.ambient) ||
+            (diffuse != b.diffuse) || 
+            (specular != b.specular) || 
+            (shininess != b.shininess));
+    }
 };

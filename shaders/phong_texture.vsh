@@ -1,7 +1,21 @@
 #version 400 core
 
-uniform	mat4 ProjectionMatrix;
-uniform	mat4 ModelViewMatrix;
+layout (std140) uniform PerSceneBlock 
+{
+	mat4 ProjectionMatrix;
+	vec4 lAmbient;
+	vec4 lDiffuse;
+	vec4 lSpecular;
+	vec4 lPosition;
+};
+
+layout (std140) uniform PerObjectBlock 
+{
+	mat4 ModelViewMatrix;
+	vec4 mAmbient;
+	vec4 mDiffuse;
+	vec4 mSpecular;
+};
 
 layout(location = 0) in vec3 vPosition;
 layout(location = 1) in vec3 vNormal;

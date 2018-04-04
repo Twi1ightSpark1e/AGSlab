@@ -56,7 +56,6 @@ void Mesh::load(const fs::path &file)
         }
     }
     obj.close();
-    //std::cout << file << " loaded (" << final_vertices.size() << " faces)" << std::endl;
     vertex_count = final_vertices.size();
     // если модель уже была загружена - удалим её
     if (vao_index != 0)

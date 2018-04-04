@@ -9,6 +9,11 @@
 #include <algorithm>
 #include <iostream>
 
+GLuint Shader::get_program() const
+{
+    return program;
+}
+
 void Shader::load_shader(GLuint &id, GLenum type, const std::vector<std::string> &text, bool debug)
 {
     auto [strings,lengths] = Extensions::vector_to_array(text);
@@ -105,6 +110,11 @@ void Shader::link(bool debug)
     }
     glDetachShader(program, vsh);
     glDetachShader(program, fsh);
+
+    int per_scene_index = glGetUniformBlockIndex(program, "PerSceneBlock");
+    int per_object_index = glGetUniformBlockIndex(program, "PerObjectBlock");
+    glUniformBlockBinding(program, 0, per_scene_index);
+    glUniformBlockBinding(program, 1, per_object_index);
 }
 
 void Shader::activate()

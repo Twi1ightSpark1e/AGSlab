@@ -22,7 +22,6 @@ public:
     Camera& operator=(Camera&&) = default;
 
     ~Camera();
-    //static Camera &get_instance();
 
     void set_projection_matrix(float fovy, float aspect, float z_near, float z_far);
     const glm::mat4 &get_projection_matrix() const;
@@ -32,4 +31,7 @@ public:
     void move_oxz(double forward, double right);
     void rotate(double horizontal, double vertical);
     void zoom(double radius);
+
+    bool operator==(const Camera& b) const;
+    bool operator!=(const Camera& b) const;
 };

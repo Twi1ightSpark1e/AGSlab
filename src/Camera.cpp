@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <fstream>
+#include <iostream>
 
 Camera::Camera() noexcept : 
     center(0, 0, 0),
@@ -97,4 +98,14 @@ void Camera::zoom(double radius)
         this->radius = std::max(LOWER_BOUND, std::min(this->radius, UPPER_BOUND));
     }
     calculate_vectors();
+}
+
+bool Camera::operator==(const Camera &b) const
+{
+    return ((view == b.view) && (projection == b.projection));
+}
+
+bool Camera::operator!=(const Camera &b) const
+{
+    return ((view != b.view) || (projection != b.projection));
 }

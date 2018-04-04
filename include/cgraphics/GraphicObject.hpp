@@ -10,11 +10,15 @@
 class GraphicObject
 {
 private:
+    int id;
     std::experimental::filesystem::path mesh;
     Material material;
     glm::mat4 model;
 public:
     GraphicObject();
+
+    void set_id(const int &id);
+    int get_id() const;
 
     void set_mesh(const std::experimental::filesystem::path &mesh);
     std::experimental::filesystem::path get_mesh() const;
@@ -26,4 +30,7 @@ public:
     void set_position(const glm::vec3 &position);
     void set_rotation(const float &degree);
     glm::mat4 get_model() const;
+
+    bool operator==(const GraphicObject &b) const;
+    bool operator!=(const GraphicObject &b) const;
 };

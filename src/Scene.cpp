@@ -4,8 +4,6 @@
 #include <cgraphics/ResourceManager.hpp>
 #include <cgraphics/RenderManager.hpp>
 
-#include <GL/freeglut.h>
-
 #include <iostream>
 #include <tuple>
 
@@ -34,11 +32,13 @@ void Scene::init(const fs::path &base_path)
     }
 
     GraphicObject object;
+    int id = 0;
     for (auto scene_object : scene)
     {
         object = create_graphic_object(std::get<0>(scene_object));
         object.set_position(std::get<1>(scene_object));
         object.set_rotation(std::get<2>(scene_object));
+        object.set_id(id++);
         objects.push_back(object);
     }
 
@@ -67,13 +67,13 @@ void Scene::simulate(double seconds)
 
 void Scene::draw()
 {
-    RenderManager::get_instance().set_camera(camera);
-    RenderManager::get_instance().set_light(light);
-
     for (auto &object : objects)
     {
         RenderManager::get_instance().add_to_queue(object);
     }
+
+    RenderManager::get_instance().set_camera(camera);
+    RenderManager::get_instance().set_light(light);
 }
 
 Camera& Scene::get_camera()

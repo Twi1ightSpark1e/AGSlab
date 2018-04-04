@@ -14,6 +14,16 @@ GraphicObject::GraphicObject()
     );
 }
 
+void GraphicObject::set_id(const int &id)
+{
+    this->id = id;
+}
+
+int GraphicObject::get_id() const
+{
+    return id;
+}
+
 void GraphicObject::set_mesh(const fs::path &mesh)
 {
     this->mesh = mesh;
@@ -56,4 +66,20 @@ void GraphicObject::set_rotation(const float &degree)
 glm::mat4 GraphicObject::get_model() const
 {
     return model;
+}
+
+bool GraphicObject::operator==(const GraphicObject &b) const
+{
+    return ((material == b.material) &&
+        (model == b.model) &&
+        (id == b.id) &&
+        (mesh == b.mesh));
+}
+
+bool GraphicObject::operator!=(const GraphicObject &b) const
+{
+    return ((material != b.material) ||
+        (model != b.model) ||
+        (id != b.id) ||
+        (mesh != b.mesh));
 }

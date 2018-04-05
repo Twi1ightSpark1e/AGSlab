@@ -153,7 +153,7 @@ int main(int argc,char **argv)
     std::cout << "OpenGL Version = " << glGetString(GL_VERSION) << std::endl << std::endl;
 
     // определение пути с исполняемым файлом
-    auto exec_path = Extensions::resolve_dots(fs::current_path() / std::string(argv[0]));
+    auto exec_path = Extensions::resolve_dots(argv[0][0] == '/' ? fs::path(argv[0]) : (fs::current_path() / std::string(argv[0])));
     // поднимаемся на одну директорию вверх, так как сборка идёт в папке build
     // parent_path два раза, так как сначала мы получаем родителя исполняемого файла,
     // а затем - родителя родителя :^)
@@ -177,7 +177,7 @@ int main(int argc,char **argv)
     // убираем повторение кнопок, т.к. мы регистрируем моменты нажатия и отпускания
     glutSetKeyRepeat(GL_FALSE);
     // обработчик сигнала SIGINT для корректного выхода из программы
-    signal(SIGINT, sigint_handler);
+    std::signal(SIGINT, sigint_handler);
     // основной цикл обработки сообщений ОС
     glutMainLoop();
     return 0;

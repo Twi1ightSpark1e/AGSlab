@@ -23,7 +23,6 @@ void Scene::init(const fs::path &base_path)
     };
 
     this->base_path = base_path;
-
     auto result = xml.load_file((base_path / "Resources.xml").c_str());
     if (!result)
     {

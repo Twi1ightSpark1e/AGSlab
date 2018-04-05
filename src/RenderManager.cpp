@@ -142,7 +142,7 @@ void   RenderManager::update_per_scene_block(int ubo_index)
         camera.get_view_matrix() * light.get_position()
     };
 
-    glBindBuffer(GL_UNIFORM_BUFFER, per_scene_ubo_index);
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo_index);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(block), &block, GL_STATIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 

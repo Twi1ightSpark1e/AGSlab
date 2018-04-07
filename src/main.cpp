@@ -28,9 +28,25 @@ fs::path meshes_folder;
 // в том числе и принудительно, по командам glutPostRedisplay
 void display()
 {
+    using namespace std::chrono;
+
+    static auto time_base = high_resolution_clock::now();;
+    static auto frames = 0;
+
     RenderManager::get_instance().start();
     scene.draw();
     RenderManager::get_instance().finish();
+
+    auto time_current = high_resolution_clock::now();
+    auto time_from_base = duration_cast<milliseconds>(time_current - time_base).count();
+    frames++;
+    if (time_from_base >= 500)
+    {
+        glutSetWindowTitle(("FPS: " + std::to_string(int(frames * 1000. / time_from_base)) + 
+            "; UBO Updates = " + std::to_string(RenderManager::get_update_count())).c_str());
+        time_base = time_current;
+        frames = 0;
+    }
 }
 
 // функция, вызываемая при изменении размеров окна
@@ -47,25 +63,12 @@ void simulation()
     using namespace std::chrono;
 
     static auto time_prev = high_resolution_clock::now();
-    static auto time_base = time_prev;
-    static auto frames = 0;
 
     auto time_current = high_resolution_clock::now();
-    auto time_from_base = duration_cast<milliseconds>(time_current - time_base).count();
     auto delta_mcs = duration_cast<microseconds>(time_current - time_prev).count();
     auto delta_s = double(delta_mcs) / 1'000'000;
     time_prev = time_current;
-    frames++;
-
     scene.simulate(delta_s);
-
-    if (time_from_base >= 500)
-    {
-        glutSetWindowTitle(("FPS: " + std::to_string(int(frames * 1000. / time_from_base)) + 
-            "; UBO Updates = " + std::to_string(RenderManager::get_update_count())).c_str());
-        time_base = time_current;
-        frames = 0;
-    }
     //ПЕРЕРИСОВАТЬ ОКНО
     glutPostRedisplay();
 }

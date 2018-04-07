@@ -16,7 +16,7 @@ GLuint Shader::get_program() const
 
 void Shader::load_shader(GLuint &id, GLenum type, const std::vector<std::string> &text, bool debug)
 {
-    auto [strings,lengths] = Extensions::vector_to_array(text);
+    auto [strings,lengths] = Extensions::vector_to_array(text); // NOLINT cause clang-tidy cannot recognize this syntax
     if (debug)
     {
         std::cout << "Creating and compiling shader" << std::endl;

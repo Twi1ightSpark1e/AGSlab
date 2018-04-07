@@ -142,7 +142,7 @@ int main(int argc,char **argv)
     // устанавливаем размер окна
     glutInitWindowSize(800,600);
     // создание окна
-    glutCreateWindow("laba_04");
+    glutCreateWindow("laba_05");
 
     //инициализация GLEW 
     glewExperimental = GL_TRUE;
@@ -156,7 +156,10 @@ int main(int argc,char **argv)
     std::cout << "OpenGL Version = " << glGetString(GL_VERSION) << std::endl << std::endl;
 
     // определение пути с исполняемым файлом
-    auto exec_path = Extensions::resolve_dots(argv[0][0] == '/' ? fs::path(argv[0]) : (fs::current_path() / std::string(argv[0])));
+    auto exec_path = Extensions::resolve_dots((argv[0][0] == '/') || (argv[0][1] == ':')
+        ? fs::path(argv[0]) 
+        : (fs::current_path() / std::string(argv[0]))
+    );
     // поднимаемся на одну директорию вверх, так как сборка идёт в папке build
     // parent_path два раза, так как сначала мы получаем родителя исполняемого файла,
     // а затем - родителя родителя :^)

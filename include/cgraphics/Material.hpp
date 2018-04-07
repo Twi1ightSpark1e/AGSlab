@@ -63,9 +63,6 @@ public:
     }
     bool operator!=(const Material &b) const
     {
-        return ((ambient != b.ambient) ||
-            (diffuse != b.diffuse) || 
-            (specular != b.specular) || 
-            (shininess != b.shininess));
+        return !((*this) == b);
     }
 };

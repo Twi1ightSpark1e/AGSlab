@@ -24,10 +24,10 @@ private:
     struct PerSceneBlock
     {
         glm::mat4 ProjectionMatrix;
-	    glm::vec4 lAmbient;
-	    glm::vec4 lDiffuse;
-	    glm::vec4 lSpecular;
-	    glm::vec4 lPosition;
+        glm::vec4 lAmbient;
+        glm::vec4 lDiffuse;
+        glm::vec4 lSpecular;
+        glm::vec4 lPosition;
     };
 
     struct PerObjectBlock

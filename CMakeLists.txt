@@ -18,7 +18,7 @@ set(SOURCES
     "src/Shader.cpp"
     "src/Extensions.cpp"
     "src/Camera.cpp"
-    "src/CameraController.cpp"
+    "src/InputManager.cpp"
     "src/Mesh.cpp"
     "src/ResourceManager.cpp"
     "src/GraphicObject.cpp"

@@ -1,5 +1,5 @@
 #include <cgraphics/Scene.hpp>
-#include <cgraphics/CameraController.hpp>
+#include <cgraphics/InputManager.hpp>
 #include <cgraphics/Extensions.hpp>
 #include <cgraphics/ResourceManager.hpp>
 #include <cgraphics/RenderManager.hpp>
@@ -66,13 +66,13 @@ void Scene::simulate(double seconds)
 
 void Scene::draw()
 {
+    RenderManager::get_instance().set_camera(camera);
+    RenderManager::get_instance().set_light(light);
+    
     for (auto &object : objects)
     {
         RenderManager::get_instance().add_to_queue(object);
     }
-
-    RenderManager::get_instance().set_camera(camera);
-    RenderManager::get_instance().set_light(light);
 }
 
 Camera& Scene::get_camera()
@@ -111,22 +111,22 @@ void Scene::simulate_mouse()
     static int mouse_x, mouse_y, prev_button_state = GLUT_UP;
 
     if ((prev_button_state == GLUT_UP) && 
-        (CameraController::get_instance().get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_DOWN))
+        (InputManager::get_instance().get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_DOWN))
     {
-        mouse_x = CameraController::get_instance().get_mouse_state('x');
-        mouse_y = CameraController::get_instance().get_mouse_state('y');
+        mouse_x = InputManager::get_instance().get_mouse_state('x');
+        mouse_y = InputManager::get_instance().get_mouse_state('y');
         prev_button_state = GLUT_DOWN;
     }
     else if ((prev_button_state == GLUT_DOWN) && 
-        (CameraController::get_instance().get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_DOWN))
+        (InputManager::get_instance().get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_DOWN))
     {
-        float new_x = CameraController::get_instance().get_mouse_state('x');
-        float new_y = CameraController::get_instance().get_mouse_state('y');
+        float new_x = InputManager::get_instance().get_mouse_state('x');
+        float new_y = InputManager::get_instance().get_mouse_state('y');
         camera.rotate((new_x - mouse_x) / 300, (new_y - mouse_y) / 300);
         mouse_x = new_x;
         mouse_y = new_y;
     }
-    else if (CameraController::get_instance().get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_UP)
+    else if (InputManager::get_instance().get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_UP)
     {
         prev_button_state = GLUT_UP;
     }
@@ -134,19 +134,19 @@ void Scene::simulate_mouse()
 
 void Scene::simulate_keyboard(double delta_s)
 {
-    if (CameraController::get_instance().get_arrow_state(GLUT_KEY_LEFT) == GLUT_DOWN)
+    if (InputManager::get_instance().get_arrow_state(GLUT_KEY_LEFT) == GLUT_DOWN)
     {
         camera.move_oxz(0, -delta_s);
     }
-    if (CameraController::get_instance().get_arrow_state(GLUT_KEY_UP) == GLUT_DOWN)
+    if (InputManager::get_instance().get_arrow_state(GLUT_KEY_UP) == GLUT_DOWN)
     {
         camera.move_oxz(delta_s, 0);
     }
-    if (CameraController::get_instance().get_arrow_state(GLUT_KEY_RIGHT) == GLUT_DOWN)
+    if (InputManager::get_instance().get_arrow_state(GLUT_KEY_RIGHT) == GLUT_DOWN)
     {
         camera.move_oxz(0, delta_s);
     }
-    if (CameraController::get_instance().get_arrow_state(GLUT_KEY_DOWN) == GLUT_DOWN)
+    if (InputManager::get_instance().get_arrow_state(GLUT_KEY_DOWN) == GLUT_DOWN)
     {
         camera.move_oxz(-delta_s, 0);
     }

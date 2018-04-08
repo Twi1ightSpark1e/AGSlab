@@ -6,7 +6,7 @@
 #include <iostream>
 
 #include <cgraphics/Extensions.hpp>
-#include <cgraphics/CameraController.hpp>
+#include <cgraphics/InputManager.hpp>
 #include <cgraphics/Scene.hpp>
 #include <cgraphics/RenderManager.hpp>
 
@@ -21,7 +21,7 @@ namespace fs = std::experimental::filesystem;
 // сцена
 Scene scene;
 // Камера
-CameraController& camera_controller = CameraController::get_instance();
+InputManager& input_manager = InputManager::get_instance();
 fs::path meshes_folder;
 
 // функция вызывается при перерисовке окна
@@ -73,56 +73,6 @@ void simulation()
     glutPostRedisplay();
 }
 
-void speckey(int key, int state)
-{
-    switch (key)
-    {
-        case GLUT_KEY_UP:
-        case GLUT_KEY_DOWN:
-        case GLUT_KEY_LEFT:
-        case GLUT_KEY_RIGHT:
-            camera_controller.set_arrow_state(key, state);
-            return;
-    }
-}
-
-void speckey_down(int key, int, int)
-{
-    speckey(key, GLUT_DOWN);
-}
-
-void speckey_up(int key, int, int)
-{
-    speckey(key, GLUT_UP);
-}
-
-void motion(int x, int y)
-{
-    camera_controller.set_mouse_state('x', x);
-    camera_controller.set_mouse_state('y', y);
-}
-
-void mouse(int button, int state, int x, int y)
-{
-    switch (button)
-    {
-        case 0:
-        case 1:
-        case 2:
-            camera_controller.set_mouse_state(button, state);
-            motion(x, y);
-            return;
-        case 3: // колёсико вверх
-            scene.get_camera().zoom(0.05);
-            return;
-        case 4: // колёсико вниз
-            scene.get_camera().zoom(-0.05);
-            return;
-        default:
-            return;
-    }
-}
-
 void sigint_handler(int)
 {
     glutLeaveMainLoop();
@@ -132,6 +82,8 @@ int main(int argc,char **argv)
 {
     // инициализация библиотеки GLUT
     glutInit(&argc,argv);
+    // обработка закрытия окна GLUT
+    glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
     // инициализация дисплея (формат вывода)
     glutInitDisplayMode ( GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL | GLUT_MULTISAMPLE );
     // требования к версии OpenGL (версия 3.3 без поддержки обратной совместимости)
@@ -170,13 +122,8 @@ int main(int argc,char **argv)
     glutReshapeFunc(reshape);
     // устанавливаем функцию которая вызывается всякий раз, когда процессор простаивает
     glutIdleFunc(simulation);
-    // функция, которая регистрирует перемещение мыши с зажатой кнопкой
-    glutMotionFunc(motion);
-    // функция, которая вызывается каждый раз, когда нажимается кнопка мыши, или крутится колесо
-    glutMouseFunc(mouse);
-    // функции обработки специальных кнопок
-    glutSpecialFunc(speckey_down);
-    glutSpecialUpFunc(speckey_up);
+    // устанавливаем обработчики мыши и клавиатуры
+    input_manager.set_handlers(scene.get_camera());
     // убираем повторение кнопок, т.к. мы регистрируем моменты нажатия и отпускания
     glutSetKeyRepeat(GL_FALSE);
     // обработчик сигнала SIGINT для корректного выхода из программы

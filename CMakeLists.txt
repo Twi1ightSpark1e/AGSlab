@@ -23,9 +23,11 @@ set(SOURCES
     "src/ResourceManager.cpp"
     "src/GraphicObject.cpp"
     "src/Scene.cpp"
-    "src/RenderManager.cpp")
+    "src/RenderManager.cpp"
+    "src/Texture.cpp")
 
 find_package(OpenGL REQUIRED)
+find_package(DevIL REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(GLM REQUIRED)
@@ -33,6 +35,7 @@ find_package(PugiXML REQUIRED)
 
 include_directories(
     ${OPENGL_INCLUDE_DIRS}
+    ${IL_INCLUDE_DIRS}
     ${GLUT_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
     ${GLM_INCLUDE_DIRS}
@@ -44,6 +47,8 @@ add_executable(cgraphics ${SOURCES})
 
 target_link_libraries(cgraphics 
     ${OPENGL_LIBRARIES}
+    ${IL_LIBRARIES}
+    ${ILU_LIBRARIES}
     ${GLUT_LIBRARIES}
     ${GLEW_LIBRARIES}
     "pugixml"

@@ -3,6 +3,7 @@
 #include <cgraphics/Extensions.hpp>
 #include <cgraphics/ResourceManager.hpp>
 #include <cgraphics/RenderManager.hpp>
+#include <cgraphics/Texture.hpp>
 
 #include <iostream>
 #include <tuple>
@@ -87,11 +88,12 @@ GraphicObject Scene::create_graphic_object(const std::string &name)
 
     GraphicObject graphic_object;
     Material material;
+    //Texture texture;
 
     auto xml_model = xml_models.find_child_by_attribute("id", name.c_str());
     fs::path xml_model_mesh = base_path / xml_model.child("Mesh").attribute("path").value();
     auto xml_model_material = xml_model.child("Material");
-    //auto xml_model_material_texture = xml_model_material.child("Texture").attribute("path").value();
+    auto xml_model_material_texture = base_path / xml_model_material.child("Texture").attribute("path").value();
     auto xml_model_material_phong = xml_model_material.child("PhongParameters");
 
     material.set_diffuse(Extensions::string_as_vec4(xml_model_material_phong.attribute("diffuse").value()));
@@ -100,8 +102,10 @@ GraphicObject Scene::create_graphic_object(const std::string &name)
     material.set_shininess(std::stof(xml_model_material_phong.attribute("shininess").value()));
 
     ResourceManager::get_instance().get_mesh(xml_model_mesh);
+    ResourceManager::get_instance().get_texture(xml_model_material_texture);
     graphic_object.set_mesh(xml_model_mesh);
     graphic_object.set_material(material);
+    graphic_object.set_texture(xml_model_material_texture);
 
     return graphic_object;
 }

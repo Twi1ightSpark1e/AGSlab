@@ -44,6 +44,16 @@ Material GraphicObject::get_material() const
     return material;
 }
 
+void GraphicObject::set_texture(const fs::path &texture)
+{
+    this->texture = texture;
+}
+
+fs::path GraphicObject::get_texture() const
+{
+    return texture;
+}
+
 void GraphicObject::set_position(const glm::vec4 &position)
 {
     model[3] = position;

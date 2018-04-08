@@ -4,6 +4,7 @@
 
 #include <cgraphics/Material.hpp>
 #include <cgraphics/Mesh.hpp>
+#include <cgraphics/Texture.hpp>
 
 #include <experimental/filesystem>
 
@@ -11,7 +12,7 @@ class GraphicObject
 {
 private:
     int id;
-    std::experimental::filesystem::path mesh;
+    std::experimental::filesystem::path mesh, texture;
     Material material;
     glm::mat4 model;
 public:
@@ -22,6 +23,9 @@ public:
 
     void set_mesh(const std::experimental::filesystem::path &mesh);
     std::experimental::filesystem::path get_mesh() const;
+
+    void set_texture(const std::experimental::filesystem::path &texture);
+    std::experimental::filesystem::path get_texture() const;
 
     void set_material(const Material &material);
     Material get_material() const;

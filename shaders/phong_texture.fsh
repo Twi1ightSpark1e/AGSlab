@@ -17,8 +17,11 @@ layout (std140) uniform PerObjectBlock // binding = 1
 	vec4 mSpecular;
 };
 
+uniform sampler2D tex;
+
 in vec3 Position;
 in vec3 Normal;
+in vec2 TexCoord;
 
 void main (void)
 {
@@ -31,7 +34,9 @@ void main (void)
 	vec4	Diffuse = mDiffuse * lDiffuse * max(dot(n_Normal, n_ToLight), 0.0f);
 	vec4	Specular = mSpecular * lSpecular * pow(max(dot(n_ToEye, n_Reflect), 0.0f), 64.0f);
 
-	vec3	Color = vec3(Ambient + Diffuse + Specular); 
+    vec4	TexColor = texture(tex, TexCoord);
+
+	vec3	Color = vec3(Ambient + Diffuse + Specular) * vec3(TexColor);
 	float	alpha = mDiffuse.a;
 
 	gl_FragColor = vec4(Color,1.0);

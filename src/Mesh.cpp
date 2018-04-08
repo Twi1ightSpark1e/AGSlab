@@ -40,7 +40,7 @@ void Mesh::load(const fs::path &file)
             // строка хранит в себе текстурные координаты
             textures.push_back({
                 std::stof(regex_groups[1].str()),
-                std::stof(regex_groups[2].str())
+                1 - std::stof(regex_groups[2].str())
             });
         }
         else if (std::regex_match(tmp, regex_groups, face_matcher))

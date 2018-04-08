@@ -10,7 +10,7 @@ ResourceManager &ResourceManager::get_instance()
     return rm;
 }
 
-Mesh ResourceManager::get_mesh(const fs::path &mesh) const
+Mesh ResourceManager::get_mesh(const fs::path &mesh)
 {
     auto search = meshes.find(mesh);
     if (search != meshes.end())
@@ -20,4 +20,16 @@ Mesh ResourceManager::get_mesh(const fs::path &mesh) const
     auto m = Mesh(mesh);
     meshes.emplace(mesh, m);
     return m;
+}
+
+Texture ResourceManager::get_texture(const fs::path &texture)
+{
+    auto search = textures.find(texture);
+    if (search != textures.end())
+    {
+        return search->second;
+    }
+    auto t = Texture(texture);
+    textures.emplace(texture, t);
+    return t;
 }

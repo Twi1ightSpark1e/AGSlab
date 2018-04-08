@@ -12,6 +12,8 @@
 
 #include <GL/freeglut.h>
 
+#include <IL/ilu.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -22,7 +24,6 @@ namespace fs = std::experimental::filesystem;
 Scene scene;
 // Камера
 InputManager& input_manager = InputManager::get_instance();
-fs::path meshes_folder;
 
 // функция вызывается при перерисовке окна
 // в том числе и принудительно, по командам glutPostRedisplay
@@ -95,6 +96,10 @@ int main(int argc,char **argv)
     glutInitWindowSize(800,600);
     // создание окна
     glutCreateWindow("laba_04");
+
+    // Инициализация DevIL
+    ilInit();
+    iluInit();
 
     //инициализация GLEW 
     glewExperimental = GL_TRUE;

@@ -47,4 +47,6 @@ public:
     void set_uniform_mat4(const std::string &name, glm::mat4 value);
     // запись вещественного числа в uniform-переменную
     void set_uniform_float(const std::string &name, float value);
+    // запись целого числа в uniform-переменную
+    void set_uniform_int(const std::string &name, int value);
 };

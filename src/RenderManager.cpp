@@ -21,7 +21,7 @@ void RenderManager::init(const fs::path& vsh, const fs::path& fsh)
 
 void RenderManager::start()
 {
-    glClearColor (0.0, 0.0, 0.0, 1.0);
+    glClearColor (1.0, 1.0, 1.0, 1.0);
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glEnable (GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -86,6 +86,9 @@ void RenderManager::add_to_queue(const GraphicObject &object)
 
 void RenderManager::finish()
 {
+    glActiveTexture(GL_TEXTURE0);    
+    shader.set_uniform_int("tex", 0);
+    
     glBindBuffer(GL_UNIFORM_BUFFER, per_scene_ubo_index);
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, per_scene_ubo_index);
     
@@ -96,6 +99,8 @@ void RenderManager::finish()
             update_per_object_block(object_states[object.get_id()].ubo_index, object);
             object_states[object.get_id()].updated = true;
         }
+        glBindTexture(GL_TEXTURE_2D, 
+            ResourceManager::get_instance().get_texture(object.get_texture()).get_id());
         glBindBufferBase(GL_UNIFORM_BUFFER, 1, object_states[object.get_id()].ubo_index);
         ResourceManager::get_instance().get_mesh(object.get_mesh()).render();
     }

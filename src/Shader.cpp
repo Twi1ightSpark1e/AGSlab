@@ -155,6 +155,10 @@ void Shader::set_uniform_vec4(const std::string &name, glm::vec4 value)
         glUseProgram(program);
         glUniform4fv(location, 1, glm::value_ptr(value));
     }
+    else
+    {
+        std::cout << "Cannot find uniform variable: " << name << std::endl;
+    }
 }
 
 void Shader::set_uniform_mat4(const std::string &name, glm::mat4 value)
@@ -164,6 +168,10 @@ void Shader::set_uniform_mat4(const std::string &name, glm::mat4 value)
     {
         glUseProgram(program);
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+    }
+    else
+    {
+        std::cout << "Cannot find uniform variable: " << name << std::endl;
     }
 }
 
@@ -175,4 +183,23 @@ void Shader::set_uniform_float(const std::string &name, float value)
         glUseProgram(program);
         glUniform1f(location, value);
     }
+    else
+    {
+        std::cout << "Cannot find uniform variable: " << name << std::endl;
+    }
 }
+
+void Shader::set_uniform_int(const std::string &name, int value)
+{
+    int location = get_uniform_location(name);
+    if (location >= 0)
+    {
+        glUseProgram(program);
+        glUniform1i(location, value);
+    }
+    else
+    {
+        std::cout << "Cannot find uniform variable: " << name << std::endl;
+    }
+}
+

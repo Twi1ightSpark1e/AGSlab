@@ -63,6 +63,16 @@ const glm::mat4 &Camera::get_view_matrix() const
     return view;
 }
 
+const glm::vec3 &Camera::get_eye() const
+{
+    return eye;
+}
+
+const glm::vec3 &Camera::get_center() const
+{
+    return center;
+}
+
 void Camera::move_oxz(double forward, double right)
 {
     auto vec_forward = glm::normalize(-eye);

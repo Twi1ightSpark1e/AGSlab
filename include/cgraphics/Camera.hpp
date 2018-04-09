@@ -28,6 +28,9 @@ public:
 
     const glm::mat4 &get_view_matrix() const;
 
+    const glm::vec3 &get_eye() const;
+    const glm::vec3 &get_center() const;
+
     void move_oxz(double forward, double right);
     void rotate(double horizontal, double vertical);
     void zoom(double radius);

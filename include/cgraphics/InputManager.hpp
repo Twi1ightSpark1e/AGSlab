@@ -4,11 +4,13 @@
 
 #include <GL/freeglut.h>
 
+#include <functional>
 #include <map>
 
 class InputManager
 {
 private:
+    typedef std::function<void()> handler_func_t;
     std::map<int, int> mouse = {
         {GLUT_LEFT_BUTTON,   GLUT_UP},
         {GLUT_MIDDLE_BUTTON, GLUT_UP},
@@ -20,7 +22,7 @@ private:
         {GLUT_KEY_RIGHT,     GLUT_UP},
         {GLUT_KEY_DOWN,      GLUT_UP}
     };
-    //Scene scene;
+    std::map<unsigned char, handler_func_t> events;
     Camera *camera;
 
     InputManager() = default;
@@ -30,6 +32,7 @@ private:
     static void mouse_func(int button, int state, int x, int y);
     static void speckey_down_func(int key, int x, int y);
     static void speckey_up_func(int key, int x, int y);
+    static void keyboard_down_func(unsigned char key, int x, int y);
     // Вспомогательный метод
     static void speckey(int key, int state);
 public:
@@ -43,6 +46,9 @@ public:
 
     int get_arrow_state(int code) const;
     void set_arrow_state(int code, int value);
+
+    void set_key_handler(unsigned char key, handler_func_t handler);
+    void del_key_handler(unsigned char key);
 
     void set_handlers(Camera &camera);
 

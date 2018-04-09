@@ -1,6 +1,7 @@
 #include <cgraphics/InputManager.hpp>
 
 #include <algorithm>
+#include <functional>
 
 int InputManager::get_mouse_state(int field) const
 {
@@ -48,6 +49,19 @@ void InputManager::set_handlers(Camera &camera)
     // функции обработки специальных кнопок
     glutSpecialFunc(InputManager::speckey_down_func);
     glutSpecialUpFunc(InputManager::speckey_up_func);
+
+    glutKeyboardFunc(InputManager::keyboard_down_func);
+    //glutKeyboardUpFunc(InputManager::keyboard_up_func);
+}
+
+void InputManager::set_key_handler(unsigned char key, InputManager::handler_func_t handler)
+{
+    events[key] = handler;
+}
+
+void InputManager::del_key_handler(unsigned char key)
+{
+    events.extract(key);
 }
 
 // Обработчики
@@ -86,6 +100,15 @@ void InputManager::speckey_down_func(int key, int, int)
 void InputManager::speckey_up_func(int key, int, int)
 {
     speckey(key, GLUT_UP);
+}
+
+void InputManager::keyboard_down_func(unsigned char key, int, int)
+{
+    auto it = get_instance().events.find(key);
+    if (it != get_instance().events.end())
+    {
+        it->second();
+    }
 }
 
 // Вспомогательные для обработчиков методы

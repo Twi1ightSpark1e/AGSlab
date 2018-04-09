@@ -9,6 +9,7 @@
 #include <cgraphics/InputManager.hpp>
 #include <cgraphics/Scene.hpp>
 #include <cgraphics/RenderManager.hpp>
+#include <cgraphics/ResourceManager.hpp>
 
 #include <GL/freeglut.h>
 
@@ -24,6 +25,8 @@ namespace fs = std::experimental::filesystem;
 Scene scene;
 // Камера
 InputManager& input_manager = InputManager::get_instance();
+// Текущий FPS
+int current_fps;
 
 // функция вызывается при перерисовке окна
 // в том числе и принудительно, по командам glutPostRedisplay
@@ -43,7 +46,8 @@ void display()
     frames++;
     if (time_from_base >= 500)
     {
-        glutSetWindowTitle(("FPS: " + std::to_string(int(frames * 1000. / time_from_base)) + 
+        current_fps = int(frames * 1000. / time_from_base);
+        glutSetWindowTitle(("FPS: " + std::to_string(current_fps) + 
             "; UBO Updates = " + std::to_string(RenderManager::get_update_count())).c_str());
         time_base = time_current;
         frames = 0;
@@ -95,7 +99,7 @@ int main(int argc,char **argv)
     // устанавливаем размер окна
     glutInitWindowSize(800,600);
     // создание окна
-    glutCreateWindow("laba_05");
+    glutCreateWindow("laba_06");
 
     // Инициализация DevIL
     ilInit();
@@ -132,6 +136,23 @@ int main(int argc,char **argv)
     glutIdleFunc(simulation);
     // устанавливаем обработчики мыши и клавиатуры
     input_manager.set_handlers(scene.get_camera());
+    // добавляем события клавиатуры:
+    //  1. если нажата q - выход из программы
+    input_manager.set_key_handler('q', []() {
+        glutLeaveMainLoop();
+    });
+    //  2. если нажата кнопка Tab - вывести статистику
+    input_manager.set_key_handler(  9, []() {
+        std::cout << "                   Statistics" << std::endl;
+        std::cout << "                 Current FPS: " << current_fps << std::endl;
+        std::cout << "         Current UBO updates: " << RenderManager::get_update_count() << std::endl;
+        std::cout << "        Loaded meshes amount: " << ResourceManager::get_instance().get_meshes_count() << std::endl;
+        std::cout << "      Loaded textures amount: " << ResourceManager::get_instance().get_textures_count() << std::endl;
+        auto eye = scene.get_camera().get_eye(), center = scene.get_camera().get_center();
+        std::cout << "             Camera position: (" << eye.x << "; " << eye.y << "; " << eye.z << ")" << std::endl;
+        std::cout << " Where the camera is looking: (" << center.x << "; " << center.y << "; " << center.z << ")" << std::endl;
+        std::cout << std::endl;
+    });
     // убираем повторение кнопок, т.к. мы регистрируем моменты нажатия и отпускания
     glutSetKeyRepeat(GL_FALSE);
     // обработчик сигнала SIGINT для корректного выхода из программы

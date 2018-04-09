@@ -23,4 +23,7 @@ public:
     static ResourceManager &get_instance();
     Mesh get_mesh(const std::experimental::filesystem::path &mesh);
     Texture get_texture(const std::experimental::filesystem::path &texture);
+
+    int get_meshes_count() const;
+    int get_textures_count() const;
 };

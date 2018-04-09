@@ -33,3 +33,13 @@ Texture ResourceManager::get_texture(const fs::path &texture)
     textures.emplace(texture, t);
     return t;
 }
+
+int ResourceManager::get_meshes_count() const
+{
+    return meshes.size();
+}
+
+int ResourceManager::get_textures_count() const
+{
+    return textures.size();
+}

@@ -64,9 +64,6 @@ public:
     }
     bool operator!=(const Light &b) const
     {
-        return ((position != b.position) ||
-            (ambient != b.ambient) ||
-            (diffuse != b.diffuse) ||
-            (specular != b.specular));
+        return !((*this) == b);
     }
 };

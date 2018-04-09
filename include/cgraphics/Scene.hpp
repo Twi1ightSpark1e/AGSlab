@@ -24,7 +24,7 @@ private:
     void simulate_mouse();
     void simulate_keyboard(double delta_s);
 public:
-    Scene() noexcept {}
+    Scene() noexcept {} // NOLINT cause linter suggests replace {} with default, but it's not valid
 
     void init(const std::experimental::filesystem::path &base_path);
     void simulate(double seconds);

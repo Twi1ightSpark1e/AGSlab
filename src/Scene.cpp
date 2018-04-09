@@ -14,13 +14,27 @@ void Scene::init(const fs::path &base_path)
 {
     static std::vector<std::tuple<std::string,glm::vec3,float>> scene = 
     {
-        std::make_tuple("drug_st",  glm::vec3(   0, 1,   0),   0),
-        std::make_tuple("big_tree", glm::vec3(   1, 1,   5),   0),
-        std::make_tuple("coffee",   glm::vec3( -10, 1,   0),   0),
-        std::make_tuple("bus_stop", glm::vec3(  -3, 0.9, 5),   0),
-        std::make_tuple("car_wh",   glm::vec3(  -3, 0,   7),   0),
-        std::make_tuple("car_wh",   glm::vec3(   2, 0,   7),   0),
-        std::make_tuple("light",    glm::vec3(-5.5, 1, 4.4), -90)
+        std::make_tuple("drug_st",    glm::vec3(     0,    1,    0),   0),
+        std::make_tuple("big_tree",   glm::vec3(     5,   .9,    4),   0),
+        std::make_tuple("coffee",     glm::vec3(   -10, 1.15,    0),   0),
+        std::make_tuple("bus_stop",   glm::vec3(    -3,  0.6,    5),   0),
+        std::make_tuple("taxi",       glm::vec3(    -3, -.02,    7),   0),
+        std::make_tuple("car_wh",     glm::vec3(     2,  -.1,    7),   0),
+        std::make_tuple("light",      glm::vec3(  -5.5,    1,  4.4), -90),
+        std::make_tuple("tile",       glm::vec3(     0,  -.7,    0),   0),
+        std::make_tuple("tile",       glm::vec3(   -10,  -.7,    0),   0),
+        std::make_tuple("tile",       glm::vec3(   -10,  -.7,   10),   0),
+        std::make_tuple("tile",       glm::vec3(     0,  -.7,   10),   0),
+        std::make_tuple("road_ln_1",  glm::vec3(-20.49,  -.6, -.49),   0),
+        std::make_tuple("tile",       glm::vec3(    10,  -.7,    0),   0),
+        std::make_tuple("tile",       glm::vec3(    20,  -.7,    0),   0),
+        std::make_tuple("tile",       glm::vec3(    20,  -.7,   10),   0),
+        std::make_tuple("road_ln_1",  glm::vec3(     0,  -.6,   10),  90),
+        std::make_tuple("road_ln_1",  glm::vec3(   -10,  -.6,   10),  90),
+        std::make_tuple("road_cor_1", glm::vec3( 10.49,  -.6,   10),  90),
+        std::make_tuple("road_cor_1", glm::vec3(-20.49,  -.6,   10), 270),
+        std::make_tuple("sky_s_rd",   glm::vec3(    10,  3.8,    0),   0),
+        std::make_tuple("sky_s_rd",   glm::vec3(  16.8,  3.8,    0),   0),
     };
 
     this->base_path = base_path;

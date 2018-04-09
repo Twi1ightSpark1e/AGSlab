@@ -7,7 +7,7 @@
 #include <iostream>
 
 Camera::Camera() noexcept : 
-    center(0, 0, 0),
+    center(5, 0, 0),
     up(0, 1, 0)
 {
     #ifdef DEBUG

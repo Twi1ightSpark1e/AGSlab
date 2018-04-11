@@ -17,6 +17,5 @@ public:
     }
     
     void load(const std::experimental::filesystem::path &path, bool flip = false);
-
-    GLuint get_id() const;
+    void apply(GLenum texture_unit = GL_TEXTURE0) const;
 };

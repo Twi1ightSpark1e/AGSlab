@@ -41,6 +41,7 @@ include_directories(
     ${GLM_INCLUDE_DIRS}
     ${PUGIXML_INCLUDE_DIRS}
     "include"
+    "/usr/local/include/ohf"
 )
 
 add_executable(cgraphics ${SOURCES})
@@ -53,6 +54,7 @@ target_link_libraries(cgraphics
     ${GLEW_LIBRARIES}
     "pugixml"
     "stdc++fs"
+    "ohf"
 )
 
 find_program(clangtidy_path NAMES clang-tidy)

@@ -8,6 +8,9 @@
 #include <iostream>
 #include <tuple>
 
+#include <ohf/Exception.hpp>
+#include <ohf/tcp/Socket.hpp>
+
 namespace fs = std::experimental::filesystem;
 
 void Scene::init(const fs::path &base_path)
@@ -45,18 +48,77 @@ void Scene::init(const fs::path &base_path)
         return;
     }
 
-    GraphicObject object;
-    int id = 0;
-    for (auto scene_object : scene)
+    try
     {
-        object = create_graphic_object(std::get<0>(scene_object));
-        object.set_position(std::get<1>(scene_object));
-        object.set_rotation(std::get<2>(scene_object));
-        object.set_id(id++);
-        objects.push_back(object);
+        sock.connect("192.168.0.23", 27000);
+        transaction_id = 0;
+        NetworkHeader request = {
+            transaction_id++, // transaction_id
+            1, // frame_number
+            1, // frame_count
+            1, // data_length
+            0  // function_id
+        };
+        auto &ios = sock.stream();
+        ios.write(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
+        ios.flush();
+        ios.read(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
+        //std::cout << ios.rdbuf() << std::endl;
+        /*sock.send(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
+        sock.receive(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
+        if (request.data_length > 1)
+        {
+            auto received_data = new char[request.data_length - 1];
+            sock.receive(received_data, request.data_length - 1);
+            std::cout << "Message from server: " << received_data << std::endl;
+        }
+        else
+        {
+            std::cout << "Cannot receive welcome message from server" << std::endl;
+        }*/
+
+        request = {
+            transaction_id++, // transaction_id
+            1, // frame_number
+            1, // frame_count
+            1, // data_length
+            1  // function_id
+        };
+        sock.send(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
+        sock.receive(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
+        if (request.data_length > 1)
+        {
+            sock.receive(4);
+            for (unsigned int it = 0; it < request.data_length - 5; it += sizeof(GameObjectDescription))
+            {
+                GameObjectDescription descr;
+                sock.receive(reinterpret_cast<char*>(&descr), sizeof(GameObjectDescription));
+
+                GraphicObject object = create_graphic_object(descr.model_name);
+                object.set_id(descr.object_id);
+                object.set_position(glm::vec3(descr.x, descr.y, descr.z));
+                object.set_rotation(-descr.rotation);
+
+                objects.emplace(descr.object_id, object);
+            }
+        }
+        else
+        {
+            std::cout << "Cannot receive game objects information from server" << std::endl;
+        }
+    }
+    catch (ohf::Exception &e)
+    {
+        std::cout << "Smth went wrong!" << std::endl;
+        std::cout << e.what() << std::endl;
     }
 
     auto xml_resources = xml.child("Resources");
+
+    auto xml_camera = xml_resources.child("Camera");
+    auto xml_camera_radius = xml_camera.child("Radius");
+    auto xml_camera_oxz = xml_camera.child("AngleTangage");
+    auto xml_camera_oy = xml_camera.child("AngleYaw");
 
     auto xml_light = xml_resources.child("Light");
     light.set_position(Extensions::string_as_vec4(xml_light.child("Direction").attribute("vector").value(), 0));
@@ -77,6 +139,35 @@ void Scene::simulate(double seconds)
 {
     simulate_keyboard(seconds);
     simulate_mouse();
+
+    NetworkHeader request = {
+        transaction_id++, // transaction_id
+        1, // frame_number
+        1, // frame_count
+        1, // data_length
+        1  // function_id
+    };
+    sock.send(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
+    sock.receive(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
+    if (request.data_length > 1)
+    {
+        unsigned int count;
+        sock.receive(reinterpret_cast<char*>(&count), sizeof(int));
+        for (unsigned int i = 0; i < count; i++)
+        {
+            GameObjectDescription descr;
+            sock.receive(reinterpret_cast<char*>(&descr), sizeof(GameObjectDescription));
+            GraphicObject object = create_graphic_object(descr.model_name);
+            object.set_id(descr.object_id);
+            object.set_position(glm::vec3(descr.x, descr.y, descr.z));
+            object.set_rotation(-descr.rotation);
+            objects[descr.object_id] = object;
+        }
+    }
+    else
+    {
+        std::cout << "Cannot receive game objects information from server" << std::endl;
+    }
 }
 
 void Scene::draw()
@@ -86,7 +177,7 @@ void Scene::draw()
     
     for (auto &object : objects)
     {
-        RenderManager::get_instance().add_to_queue(object);
+        RenderManager::get_instance().add_to_queue(object.second);
     }
 }
 
@@ -102,7 +193,6 @@ GraphicObject Scene::create_graphic_object(const std::string &name)
 
     GraphicObject graphic_object;
     Material material;
-    //Texture texture;
 
     auto xml_model = xml_models.find_child_by_attribute("id", name.c_str());
     fs::path xml_model_mesh = base_path / xml_model.child("Mesh").attribute("path").value();
@@ -167,5 +257,13 @@ void Scene::simulate_keyboard(double delta_s)
     if (InputManager::get_instance().get_arrow_state(GLUT_KEY_DOWN) == GLUT_DOWN)
     {
         camera.move_oxz(-delta_s, 0);
+    }
+}
+
+Scene::~Scene() noexcept
+{
+    if (sock.isValid())
+    {
+        sock.close();
     }
 }

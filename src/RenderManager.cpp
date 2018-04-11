@@ -86,7 +86,6 @@ void RenderManager::add_to_queue(const GraphicObject &object)
 
 void RenderManager::finish()
 {
-    glActiveTexture(GL_TEXTURE0);    
     shader.set_uniform_int("tex", 0);
     
     glBindBuffer(GL_UNIFORM_BUFFER, per_scene_ubo_index);
@@ -99,8 +98,7 @@ void RenderManager::finish()
             update_per_object_block(object_states[object.get_id()].ubo_index, object);
             object_states[object.get_id()].updated = true;
         }
-        glBindTexture(GL_TEXTURE_2D, 
-            ResourceManager::get_instance().get_texture(object.get_texture()).get_id());
+        ResourceManager::get_instance().get_texture(object.get_texture()).apply();
         glBindBufferBase(GL_UNIFORM_BUFFER, 1, object_states[object.get_id()].ubo_index);
         ResourceManager::get_instance().get_mesh(object.get_mesh()).render();
     }

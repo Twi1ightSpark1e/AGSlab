@@ -44,7 +44,8 @@ void Texture::load(const fs::path &path, bool flip)
     ilDeleteImage(image_id);
 }
 
-GLuint Texture::get_id() const
+void Texture::apply(GLenum texture_unit) const
 {
-    return texture_id;
+    glActiveTexture(texture_unit);
+    glBindTexture(GL_TEXTURE_2D, texture_id);
 }

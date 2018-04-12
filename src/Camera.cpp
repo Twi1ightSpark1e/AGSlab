@@ -7,7 +7,7 @@
 #include <iostream>
 
 Camera::Camera() noexcept : 
-    center(5, 0, 0),
+    center(0, 0, 0),
     up(0, 1, 0)
 {
     #ifdef DEBUG
@@ -87,25 +87,21 @@ void Camera::move_oxz(double forward, double right)
 
 void Camera::rotate(double horizontal, double vertical)
 {
-    static const double LOWER_BOUND = .0873, UPPER_BOUND = 1.394;
-
     radian_x += horizontal * std::sqrt(speed);
-    if ((radian_y >= LOWER_BOUND) && (radian_y <= UPPER_BOUND))
+    if ((radian_y >= oxz_min) && (radian_y <= oxz_max))
     {
         radian_y += vertical * std::sqrt(speed);
-        radian_y = std::max(LOWER_BOUND, std::min(UPPER_BOUND, radian_y));
+        radian_y = std::max(oxz_min, std::min(oxz_max, radian_y));
     }
     calculate_vectors();
 }
 
 void Camera::zoom(double radius)
 {
-    static const double LOWER_BOUND = 2, UPPER_BOUND = 1000;
-
-    if ((this->radius >= LOWER_BOUND) && (this->radius <= UPPER_BOUND))
+    if ((this->radius >= radius_min) && (this->radius <= radius_max))
     {
         this->radius -= radius * std::pow(speed, 2);
-        this->radius = std::max(LOWER_BOUND, std::min(this->radius, UPPER_BOUND));
+        this->radius = std::max(radius_min, std::min(this->radius, radius_max));
     }
     calculate_vectors();
 }
@@ -118,4 +114,29 @@ bool Camera::operator==(const Camera &b) const
 bool Camera::operator!=(const Camera &b) const
 {
     return ((view != b.view) || (projection != b.projection));
+}
+
+void Camera::set_radius(double current, double min, double max)
+{
+    radius = current;
+    radius_min = min;
+    radius_max = max;
+
+    calculate_vectors();
+}
+
+void Camera::set_vertical(double current, double min, double max)
+{
+    radian_y = glm::radians(current);
+    oxz_min = glm::radians(min);
+    oxz_max = glm::radians(max);
+
+    calculate_vectors();
+}
+
+void Camera::set_horizontal(double current)
+{
+    radian_x = glm::radians(current);
+
+    calculate_vectors();
 }

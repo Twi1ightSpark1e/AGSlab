@@ -15,31 +15,6 @@ namespace fs = std::experimental::filesystem;
 
 void Scene::init(const fs::path &base_path)
 {
-    static std::vector<std::tuple<std::string,glm::vec3,float>> scene = 
-    {
-        std::make_tuple("drug_st",    glm::vec3(     0,    1,    0),   0),
-        std::make_tuple("big_tree",   glm::vec3(     5,   .9,    4),   0),
-        std::make_tuple("coffee",     glm::vec3(   -10, 1.15,    0),   0),
-        std::make_tuple("bus_stop",   glm::vec3(    -3,  0.6,    5),   0),
-        std::make_tuple("taxi",       glm::vec3(    -3, -.02,    7),   0),
-        std::make_tuple("car_wh",     glm::vec3(     2,  -.1,    7),   0),
-        std::make_tuple("light",      glm::vec3(  -5.5,    1,  4.4), -90),
-        std::make_tuple("tile",       glm::vec3(     0,  -.7,    0),   0),
-        std::make_tuple("tile",       glm::vec3(   -10,  -.7,    0),   0),
-        std::make_tuple("tile",       glm::vec3(   -10,  -.7,   10),   0),
-        std::make_tuple("tile",       glm::vec3(     0,  -.7,   10),   0),
-        std::make_tuple("road_ln_1",  glm::vec3(-20.49,  -.6, -.49),   0),
-        std::make_tuple("tile",       glm::vec3(    10,  -.7,    0),   0),
-        std::make_tuple("tile",       glm::vec3(    20,  -.7,    0),   0),
-        std::make_tuple("tile",       glm::vec3(    20,  -.7,   10),   0),
-        std::make_tuple("road_ln_1",  glm::vec3(     0,  -.6,   10),  90),
-        std::make_tuple("road_ln_1",  glm::vec3(   -10,  -.6,   10),  90),
-        std::make_tuple("road_cor_1", glm::vec3( 10.49,  -.6,   10),  90),
-        std::make_tuple("road_cor_1", glm::vec3(-20.49,  -.6,   10), 270),
-        std::make_tuple("sky_s_rd",   glm::vec3(    10,  3.8,    0),   0),
-        std::make_tuple("sky_s_rd",   glm::vec3(  16.8,  3.8,    0),   0),
-    };
-
     this->base_path = base_path;
     auto result = xml.load_file((base_path / "Resources.xml").c_str());
     if (!result)
@@ -47,10 +22,15 @@ void Scene::init(const fs::path &base_path)
         std::cout << "Cannot load Resource.xml" << std::endl;
         return;
     }
-
+    auto xml_resources = xml.child("Resources");
+    auto xml_server = xml_resources.child("Server");
+    auto xml_server_ip = xml_server.child("IP").attribute("value").value();
+    auto xml_server_port = std::stoi(xml_server.child("Port").attribute("value").value());
     try
     {
-        sock.connect("192.168.0.23", 27000);
+        std::cout << "Trying connect to " << xml_server_ip << ":" << xml_server_port << std::endl;
+        sock.connect(xml_server_ip, xml_server_port);
+        std::cout << "Connected successfully" << std::endl;
         transaction_id = 0;
         NetworkHeader request = {
             transaction_id++, // transaction_id
@@ -59,12 +39,7 @@ void Scene::init(const fs::path &base_path)
             1, // data_length
             0  // function_id
         };
-        auto &ios = sock.stream();
-        ios.write(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
-        ios.flush();
-        ios.read(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
-        //std::cout << ios.rdbuf() << std::endl;
-        /*sock.send(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
+        sock.send(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
         sock.receive(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
         if (request.data_length > 1)
         {
@@ -75,36 +50,6 @@ void Scene::init(const fs::path &base_path)
         else
         {
             std::cout << "Cannot receive welcome message from server" << std::endl;
-        }*/
-
-        request = {
-            transaction_id++, // transaction_id
-            1, // frame_number
-            1, // frame_count
-            1, // data_length
-            1  // function_id
-        };
-        sock.send(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
-        sock.receive(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
-        if (request.data_length > 1)
-        {
-            sock.receive(4);
-            for (unsigned int it = 0; it < request.data_length - 5; it += sizeof(GameObjectDescription))
-            {
-                GameObjectDescription descr;
-                sock.receive(reinterpret_cast<char*>(&descr), sizeof(GameObjectDescription));
-
-                GraphicObject object = create_graphic_object(descr.model_name);
-                object.set_id(descr.object_id);
-                object.set_position(glm::vec3(descr.x, descr.y, descr.z));
-                object.set_rotation(-descr.rotation);
-
-                objects.emplace(descr.object_id, object);
-            }
-        }
-        else
-        {
-            std::cout << "Cannot receive game objects information from server" << std::endl;
         }
     }
     catch (ohf::Exception &e)
@@ -113,12 +58,17 @@ void Scene::init(const fs::path &base_path)
         std::cout << e.what() << std::endl;
     }
 
-    auto xml_resources = xml.child("Resources");
-
     auto xml_camera = xml_resources.child("Camera");
     auto xml_camera_radius = xml_camera.child("Radius");
+    camera.set_radius(std::stod(xml_camera_radius.attribute("current").value()),
+        std::stod(xml_camera_radius.attribute("min").value()),
+        std::stod(xml_camera_radius.attribute("max").value()));
     auto xml_camera_oxz = xml_camera.child("AngleTangage");
+    camera.set_vertical(std::stod(xml_camera_oxz.attribute("current").value()),
+        std::stod(xml_camera_oxz.attribute("min").value()),
+        std::stod(xml_camera_oxz.attribute("max").value()));
     auto xml_camera_oy = xml_camera.child("AngleYaw");
+    camera.set_horizontal(std::stod(xml_camera_oy.attribute("current").value()));
 
     auto xml_light = xml_resources.child("Light");
     light.set_position(Extensions::string_as_vec4(xml_light.child("Direction").attribute("vector").value(), 0));
@@ -147,17 +97,24 @@ void Scene::simulate(double seconds)
         1, // data_length
         1  // function_id
     };
+    objects.clear();
     sock.send(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
     sock.receive(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
     if (request.data_length > 1)
     {
         unsigned int count;
         sock.receive(reinterpret_cast<char*>(&count), sizeof(int));
+        GameObjectDescription descr;
         for (unsigned int i = 0; i < count; i++)
         {
-            GameObjectDescription descr;
             sock.receive(reinterpret_cast<char*>(&descr), sizeof(GameObjectDescription));
-            GraphicObject object = create_graphic_object(descr.model_name);
+
+            /*auto it = objects.find(descr.object_id);
+            auto object = (it != objects.end()) 
+                ? objects[descr.object_id]
+                : create_graphic_object(descr.model_name);*/
+
+            auto object = create_graphic_object(descr.model_name);
             object.set_id(descr.object_id);
             object.set_position(glm::vec3(descr.x, descr.y, descr.z));
             object.set_rotation(-descr.rotation);
@@ -184,6 +141,11 @@ void Scene::draw()
 Camera& Scene::get_camera()
 {
     return camera;
+}
+
+unsigned short Scene::get_transaction_id() const
+{
+    return transaction_id;
 }
 
 GraphicObject Scene::create_graphic_object(const std::string &name)
@@ -257,13 +219,5 @@ void Scene::simulate_keyboard(double delta_s)
     if (InputManager::get_instance().get_arrow_state(GLUT_KEY_DOWN) == GLUT_DOWN)
     {
         camera.move_oxz(-delta_s, 0);
-    }
-}
-
-Scene::~Scene() noexcept
-{
-    if (sock.isValid())
-    {
-        sock.close();
     }
 }

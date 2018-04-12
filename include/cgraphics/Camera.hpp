@@ -11,6 +11,8 @@ private:
     glm::vec3 eye, center, up;
     // Вспомогательные поля
     double radian_x = .6, radian_y = .4, radius = 28, speed = 2;
+    double radius_min, radius_max;
+    double oxz_min, oxz_max;
 
     void calculate_vectors();
 public:
@@ -34,6 +36,10 @@ public:
     void move_oxz(double forward, double right);
     void rotate(double horizontal, double vertical);
     void zoom(double radius);
+
+    void set_radius(double current, double min, double max);
+    void set_vertical(double current, double min, double max);
+    void set_horizontal(double current);
 
     bool operator==(const Camera& b) const;
     bool operator!=(const Camera& b) const;

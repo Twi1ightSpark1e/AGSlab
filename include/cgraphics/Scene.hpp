@@ -47,11 +47,11 @@ private:
     void simulate_keyboard(double delta_s);
 public:
     Scene() noexcept {} // NOLINT cause linter suggests replace {} with default, but it's not valid
-    ~Scene() noexcept;
 
     void init(const std::experimental::filesystem::path &base_path);
     void simulate(double seconds);
     void draw();
 
     Camera &get_camera();
+    unsigned short get_transaction_id() const;
 };

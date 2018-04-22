@@ -60,29 +60,41 @@ void Scene::init(const fs::path &base_path)
 
     auto xml_camera = xml_resources.child("Camera");
     auto xml_camera_radius = xml_camera.child("Radius");
-    camera.set_radius(std::stod(xml_camera_radius.attribute("current").value()),
-        std::stod(xml_camera_radius.attribute("min").value()),
-        std::stod(xml_camera_radius.attribute("max").value()));
+    camera.set_radius(xml_camera_radius.attribute("current").as_double(),
+        xml_camera_radius.attribute("min").as_double(),
+        xml_camera_radius.attribute("max").as_double());
     auto xml_camera_oxz = xml_camera.child("AngleTangage");
-    camera.set_vertical(std::stod(xml_camera_oxz.attribute("current").value()),
-        std::stod(xml_camera_oxz.attribute("min").value()),
-        std::stod(xml_camera_oxz.attribute("max").value()));
+    camera.set_vertical(xml_camera_oxz.attribute("current").as_double(),
+        xml_camera_oxz.attribute("min").as_double(),
+        xml_camera_oxz.attribute("max").as_double());
     auto xml_camera_oy = xml_camera.child("AngleYaw");
-    camera.set_horizontal(std::stod(xml_camera_oy.attribute("current").value()));
+    camera.set_horizontal(xml_camera_oy.attribute("current").as_double());
 
     auto xml_light = xml_resources.child("Light");
-    light.set_position(Extensions::string_as_vec4(xml_light.child("Direction").attribute("vector").value(), 0));
+    light.set_position(Extensions::string_as_vec4(xml_light.child("Direction").attribute("vector").as_string(), 0));
     auto xml_light_params = xml_light.child("PhongParameters");
     light.set_diffuse(Extensions::string_as_vec4(xml_light_params.attribute("diffuse").value()));
     light.set_ambient(Extensions::string_as_vec4(xml_light_params.attribute("ambient").value()));
     light.set_specular(Extensions::string_as_vec4(xml_light_params.attribute("specular").value()));
 
     auto xml_shaders = xml_resources.child("Shaders");
-    auto xml_shader_phong = xml_shaders.find_child_by_attribute("id", "phong");
-    RenderManager::get_instance().init(
-        base_path / xml_shader_phong.attribute("vertex-path").value(),
-        base_path / xml_shader_phong.attribute("fragment-path").value()
-    );
+    auto xml_shader_light = xml_shaders.find_child_by_attribute("id", "light");
+    auto xml_shader_skybox = xml_shaders.find_child_by_attribute("id", "skybox");
+    ShaderPaths light_shader = {
+        base_path / xml_shader_light.attribute("vertex-path").value(),
+        base_path / xml_shader_light.attribute("fragment-path").value()
+    }, skybox_shader = {
+        base_path / xml_shader_skybox.attribute("vertex-path").value(),
+        base_path / xml_shader_skybox.attribute("fragment-path").value()
+    };
+    RenderManager::get_instance().init(light_shader, skybox_shader);
+
+    auto xml_skybox = xml_resources.child("SkyBox");
+    auto xml_skybox_basename = xml_skybox.child("Basename");
+    auto xml_skybox_basename_prefix = std::string(xml_skybox_basename.attribute("prefix").value());
+    auto xml_skybox_basename_extension = xml_skybox_basename.attribute("extension").value();
+    auto xml_skybox_type = std::string(xml_skybox.child("Type").attribute("value").value());
+    skybox.load(base_path / (xml_skybox_basename_prefix + '_' + xml_skybox_type), xml_skybox_basename_extension);
 }
 
 void Scene::simulate(double seconds)
@@ -109,15 +121,11 @@ void Scene::simulate(double seconds)
         {
             sock.receive(reinterpret_cast<char*>(&descr), sizeof(GameObjectDescription));
 
-            /*auto it = objects.find(descr.object_id);
-            auto object = (it != objects.end()) 
-                ? objects[descr.object_id]
-                : create_graphic_object(descr.model_name);*/
-
             auto object = create_graphic_object(descr.model_name);
             object.set_id(descr.object_id);
             object.set_position(glm::vec3(descr.x, descr.y, descr.z));
             object.set_rotation(-descr.rotation);
+            
             objects[descr.object_id] = object;
         }
     }
@@ -131,6 +139,7 @@ void Scene::draw()
 {
     RenderManager::get_instance().set_camera(camera);
     RenderManager::get_instance().set_light(light);
+    RenderManager::get_instance().set_skybox(skybox);
     
     for (auto &object : objects)
     {
@@ -220,4 +229,9 @@ void Scene::simulate_keyboard(double delta_s)
     {
         camera.move_oxz(-delta_s, 0);
     }
+}
+
+Scene::~Scene() noexcept
+{
+    sock.close();
 }

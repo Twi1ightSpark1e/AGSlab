@@ -4,12 +4,18 @@
 #include <cgraphics/Camera.hpp>
 #include <cgraphics/Light.hpp>
 #include <cgraphics/GraphicObject.hpp>
+#include <cgraphics/SkyBox.hpp>
 
 #include <map>
 #include <vector>
 #include <experimental/filesystem>
 
 #include <glm/glm.hpp>
+
+struct ShaderPaths
+{
+    std::experimental::filesystem::path vertex, fragment;
+};
 
 class RenderManager
 {
@@ -38,9 +44,10 @@ private:
         glm::vec4 mSpecular;
     };
 
-    Shader shader;
+    Shader light_shader, skybox_shader;
     Camera camera;
     Light  light;
+    SkyBox skybox;
     std::vector<GraphicObject> objects;
     std::map<int, ObjectState> object_states;
     GLuint per_scene_ubo_index;
@@ -69,12 +76,13 @@ public:
         return update_count;
     }
 
-    void init(const std::experimental::filesystem::path& vsh, const std::experimental::filesystem::path& fsh);
+    void init(const ShaderPaths& light, const ShaderPaths& skybox);
     void start();
 
     void set_camera(const Camera &camera);
     void set_light(const Light &light);
-    void add_to_queue(const GraphicObject &object);
+    void set_skybox(const SkyBox &skybox);
+    void add_to_queue(GraphicObject object);
 
     void finish();
 };

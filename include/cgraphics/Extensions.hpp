@@ -3,6 +3,8 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
+#include <pugixml.hpp>
+
 #include <experimental/filesystem>
 #include <vector>
 #include <tuple>

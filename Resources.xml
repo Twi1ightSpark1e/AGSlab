@@ -16,11 +16,16 @@
     <AngleTangage current="45.0" min="25.0" max="80.0"/>  <!-- угол в градусах относительно плоскости Oxz -->
     <AngleYaw current="45.0"/>                            <!-- угол в градусах относительно Oy против часовой стрелки -->
   </Camera>
-  
+
+  <SkyBox>
+    <Basename prefix="textures/skybox/CloudyCrown" extension="png" />
+    <Type value="Evening" />
+  </SkyBox>
+
   <Shaders>
-    <Shader id="phong" vertex-path="shaders/phong_texture.vsh" fragment-path="shaders/phong_texture.fsh"/>
-    <Shader id="ident" vertex-path="shaders/identifier_to_color.vsh" fragment-path="shaders/identifier_to_color.fsh"/>
-    <Shader id="aabb" vertex-path="shaders/bounding_box.vsh" fragment-path="shaders/bounding_box.fsh"/>
+    <Shader id="light" vertex-path="shaders/direct_light.vsh" fragment-path="shaders/direct_light.fsh"/>
+    <Shader id="skybox" vertex-path="shaders/skybox.vsh" fragment-path="shaders/skybox.fsh"/>
+    <Shader id="bounding_box" vertex-path="shaders/bounding_box.vsh" fragment-path="shaders/bounding_box.fsh"/>
   </Shaders>
 
   <Models>

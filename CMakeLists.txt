@@ -24,7 +24,8 @@ set(SOURCES
     "src/GraphicObject.cpp"
     "src/Scene.cpp"
     "src/RenderManager.cpp"
-    "src/Texture.cpp")
+    "src/Texture.cpp"
+    "src/SkyBox.cpp")
 
 find_package(OpenGL REQUIRED)
 find_package(DevIL REQUIRED)

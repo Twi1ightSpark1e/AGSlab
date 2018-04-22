@@ -5,6 +5,7 @@
 #include <cgraphics/Light.hpp>
 #include <cgraphics/GraphicObject.hpp>
 #include <cgraphics/SkyBox.hpp>
+#include <cgraphics/NetProtocol.hpp>
 
 #include <experimental/filesystem>
 #include <string>
@@ -41,20 +42,19 @@ private:
     std::map<int, GraphicObject> objects;
     pugi::xml_document xml;
     std::experimental::filesystem::path base_path;
-    ohf::tcp::Socket sock;
-    unsigned short transaction_id;
+    NetProtocol protocol;
 
     GraphicObject create_graphic_object(const std::string &name);
     void simulate_mouse();
     void simulate_keyboard(double delta_s);
 public:
     Scene() noexcept {} // NOLINT cause linter suggests replace {} with default, but it's not valid
-    ~Scene() noexcept;
 
     void init(const std::experimental::filesystem::path &base_path);
     void simulate(double seconds);
     void draw();
 
+    unsigned long get_objects_count() const;
+
     Camera &get_camera();
-    unsigned short get_transaction_id() const;
 };

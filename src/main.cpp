@@ -46,7 +46,7 @@ void display()
     frames++;
     glutSetWindowTitle(("FPS: " + std::to_string(current_fps) + 
             "; UBO Updates = " + std::to_string(RenderManager::get_update_count()) + 
-            "; Transactions = " + std::to_string(scene.get_transaction_id())).c_str());
+            "; Objects = " + std::to_string(scene.get_objects_count())).c_str());
     if (time_from_base >= 500)
     {
         current_fps = int(frames * 1000. / time_from_base);
@@ -100,7 +100,7 @@ int main(int argc,char **argv)
     // устанавливаем размер окна
     glutInitWindowSize(800,600);
     // создание окна
-    glutCreateWindow("laba_06");
+    glutCreateWindow("laba_07");
 
     // Инициализация DevIL
     ilInit();

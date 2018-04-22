@@ -76,7 +76,7 @@ const glm::vec3 &Camera::get_center() const
 void Camera::move_oxz(double forward, double right)
 {
     auto vec_forward = glm::normalize(-eye);
-    auto delta_forward = glm::vec3(vec_forward.x * forward * speed, 0, vec_forward.z * forward * speed); 
+    auto delta_forward = glm::vec3(vec_forward.x * forward * speed, 0, vec_forward.z * forward * speed);
     auto delta_right = glm::normalize(glm::cross(vec_forward, up));
     delta_right = glm::vec3(delta_right.x * right * speed, 0, delta_right.z * right * speed);
 

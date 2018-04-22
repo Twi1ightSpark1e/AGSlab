@@ -10,7 +10,7 @@ private:
     // Вектора: местоположение глаз, точки обзора и направления вверх
     glm::vec3 eye, center, up;
     // Вспомогательные поля
-    double radian_x = .6, radian_y = .4, radius = 28, speed = 2;
+    double radian_x = .6, radian_y = .4, radius = 28, speed = 3.5;
     double radius_min, radius_max;
     double oxz_min, oxz_max;
 

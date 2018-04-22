@@ -26,37 +26,9 @@ void Scene::init(const fs::path &base_path)
     auto xml_server = xml_resources.child("Server");
     auto xml_server_ip = xml_server.child("IP").attribute("value").value();
     auto xml_server_port = std::stoi(xml_server.child("Port").attribute("value").value());
-    try
-    {
-        std::cout << "Trying connect to " << xml_server_ip << ":" << xml_server_port << std::endl;
-        sock.connect(xml_server_ip, xml_server_port);
-        std::cout << "Connected successfully" << std::endl;
-        transaction_id = 0;
-        NetworkHeader request = {
-            transaction_id++, // transaction_id
-            1, // frame_number
-            1, // frame_count
-            1, // data_length
-            0  // function_id
-        };
-        sock.send(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
-        sock.receive(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
-        if (request.data_length > 1)
-        {
-            auto received_data = new char[request.data_length - 1];
-            sock.receive(received_data, request.data_length - 1);
-            std::cout << "Message from server: " << received_data << std::endl;
-        }
-        else
-        {
-            std::cout << "Cannot receive welcome message from server" << std::endl;
-        }
-    }
-    catch (ohf::Exception &e)
-    {
-        std::cout << "Smth went wrong!" << std::endl;
-        std::cout << e.what() << std::endl;
-    }
+    
+    protocol.connect(xml_server_ip, xml_server_port);
+    std::cout << "Welcome message: " << protocol.get_welcome_message() << std::endl;
 
     auto xml_camera = xml_resources.child("Camera");
     auto xml_camera_radius = xml_camera.child("Radius");
@@ -102,36 +74,17 @@ void Scene::simulate(double seconds)
     simulate_keyboard(seconds);
     simulate_mouse();
 
-    NetworkHeader request = {
-        transaction_id++, // transaction_id
-        1, // frame_number
-        1, // frame_count
-        1, // data_length
-        1  // function_id
-    };
-    objects.clear();
-    sock.send(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
-    sock.receive(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
-    if (request.data_length > 1)
+    auto descriptions = protocol.get_nearby_objects(camera.get_eye() + camera.get_center(), 50);
+    for (auto &descr : descriptions)
     {
-        unsigned int count;
-        sock.receive(reinterpret_cast<char*>(&count), sizeof(int));
-        GameObjectDescription descr;
-        for (unsigned int i = 0; i < count; i++)
-        {
-            sock.receive(reinterpret_cast<char*>(&descr), sizeof(GameObjectDescription));
+        auto object = create_graphic_object(std::string(descr.model_name.begin()));
 
-            auto object = create_graphic_object(descr.model_name);
-            object.set_id(descr.object_id);
-            object.set_position(glm::vec3(descr.x, descr.y, descr.z));
-            object.set_rotation(-descr.rotation);
-            
-            objects[descr.object_id] = object;
-        }
-    }
-    else
-    {
-        std::cout << "Cannot receive game objects information from server" << std::endl;
+        object.set_id(descr.object_id);
+        object.set_position(glm::vec3(descr.x, descr.y, descr.z));
+        object.set_rotation(-descr.rotation);
+        object.set_aabb(descr.aabb);
+
+        objects[descr.object_id] = object;
     }
 }
 
@@ -152,9 +105,9 @@ Camera& Scene::get_camera()
     return camera;
 }
 
-unsigned short Scene::get_transaction_id() const
+unsigned long Scene::get_objects_count() const
 {
-    return transaction_id;
+    return objects.size();
 }
 
 GraphicObject Scene::create_graphic_object(const std::string &name)
@@ -229,9 +182,4 @@ void Scene::simulate_keyboard(double delta_s)
     {
         camera.move_oxz(-delta_s, 0);
     }
-}
-
-Scene::~Scene() noexcept
-{
-    sock.close();
 }

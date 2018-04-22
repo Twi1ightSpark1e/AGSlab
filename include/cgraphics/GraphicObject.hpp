@@ -6,6 +6,7 @@
 #include <cgraphics/Mesh.hpp>
 #include <cgraphics/Texture.hpp>
 
+#include <array>
 #include <experimental/filesystem>
 
 class GraphicObject
@@ -15,6 +16,7 @@ private:
     std::experimental::filesystem::path mesh, texture;
     Material material;
     glm::mat4 model;
+    std::array<float, 3> aabb;
 public:
     GraphicObject();
 
@@ -34,6 +36,9 @@ public:
     void set_position(const glm::vec3 &position);
     void set_rotation(const float &degree);
     glm::mat4 get_model() const;
+
+    void set_aabb(const std::array<float, 3> &aabb);
+    std::array<float, 3> get_aabb() const;
 
     bool operator==(const GraphicObject &b) const;
     bool operator!=(const GraphicObject &b) const;

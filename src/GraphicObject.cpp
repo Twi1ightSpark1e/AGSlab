@@ -78,18 +78,26 @@ glm::mat4 GraphicObject::get_model() const
     return model;
 }
 
+void GraphicObject::set_aabb(const std::array<float, 3> &aabb)
+{
+    this->aabb = aabb;
+}
+
+std::array<float, 3> GraphicObject::get_aabb() const
+{
+    return aabb;
+}
+
 bool GraphicObject::operator==(const GraphicObject &b) const
 {
     return ((material == b.material) &&
         (model == b.model) &&
         (id == b.id) &&
-        (mesh == b.mesh));
+        (mesh == b.mesh) &&
+        (aabb == b.aabb));
 }
 
 bool GraphicObject::operator!=(const GraphicObject &b) const
 {
-    return ((material != b.material) ||
-        (model != b.model) ||
-        (id != b.id) ||
-        (mesh != b.mesh));
+    return !((*this) == b);
 }

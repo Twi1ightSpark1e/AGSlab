@@ -8,6 +8,7 @@
 * GLEW
 * GLM
 * DevIL
+* OkHttp fork ( https://github.com/Good-Pudge/okhttp-fork )
 
 ### Как собрать
 ```

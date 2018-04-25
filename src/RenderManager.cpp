@@ -25,8 +25,7 @@ void RenderManager::init(const ShaderPaths& light, const ShaderPaths& skybox)
 
 void RenderManager::start()
 {
-    /*glClearColor (1.0, 1.0, 1.0, 1.0);
-    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );*/
+    glClear(GL_DEPTH_BUFFER_BIT);
 
     objects.clear();
 }
@@ -92,23 +91,9 @@ void RenderManager::add_to_queue(GraphicObject object)
 void RenderManager::finish()
 {
     glEnable (GL_DEPTH_TEST);
-    glDepthFunc(GL_ALWAYS);
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
-
-    skybox_shader.activate();
-    skybox_shader.set_uniform_int("tex", 0);
-    skybox_shader.set_uniform_mat4("uProjectionMatrix", camera.get_projection_matrix());
-    skybox_shader.set_uniform_mat4("uModelViewMatrix", camera.get_view_matrix() * glm::mat4 {
-        {1, 0, 0, 0},
-        {0, 1, 0, 0},
-        {0, 0, 1, 0},
-        {0, 0, 0, 1},
-    });
-    skybox.render(GL_TEXTURE0);
-
-    glDepthFunc(GL_LESS);
     glCullFace(GL_BACK);
+    glDepthFunc(GL_LESS);
 
     light_shader.activate();
     light_shader.set_uniform_int("tex", 1);
@@ -127,6 +112,20 @@ void RenderManager::finish()
         glBindBufferBase(GL_UNIFORM_BUFFER, 1, object_states[object.get_id()].ubo_index);
         ResourceManager::get_instance().get_mesh(object.get_mesh()).render();
     }
+
+    glDepthFunc(GL_LEQUAL);
+    glCullFace(GL_FRONT);
+
+    skybox_shader.activate();
+    skybox_shader.set_uniform_int("tex", 0);
+    skybox_shader.set_uniform_mat4("uProjectionMatrix", camera.get_projection_matrix());
+    skybox_shader.set_uniform_mat4("uModelViewMatrix", camera.get_view_matrix() * glm::mat4 {
+        {1, 0, 0, 0},
+        {0, 1, 0, 0},
+        {0, 0, 1, 0},
+        {0, 0, 0, 1},
+    });
+    skybox.render(GL_TEXTURE0);
 
     Shader::deactivate();
     glutSwapBuffers();

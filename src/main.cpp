@@ -139,11 +139,11 @@ int main(int argc,char **argv)
     input_manager.set_handlers(scene.get_camera());
     // добавляем события клавиатуры:
     //  1. если нажата q - выход из программы
-    input_manager.set_key_handler('q', []() {
+    input_manager.set_key_handler('q', [] {
         glutLeaveMainLoop();
     });
     //  2. если нажата кнопка Tab - вывести статистику
-    input_manager.set_key_handler(  9, []() {
+    input_manager.set_key_handler(  9, [] {
         std::cout << "                   Statistics" << std::endl;
         std::cout << "                 Current FPS: " << current_fps << std::endl;
         std::cout << "         Current UBO updates: " << RenderManager::get_update_count() << std::endl;
@@ -153,6 +153,10 @@ int main(int argc,char **argv)
         std::cout << "             Camera position: (" << eye.x << "; " << eye.y << "; " << eye.z << ")" << std::endl;
         std::cout << " Where the camera is looking: (" << center.x << "; " << center.y << "; " << center.z << ")" << std::endl;
         std::cout << std::endl;
+    });
+    //  3. если нажата кнопка 2 - сменить режим отображения AABB
+    input_manager.set_key_handler('0' + 2, [] {
+        RenderManager::get_instance().toggle_aabb_render_mode();
     });
     // убираем повторение кнопок, т.к. мы регистрируем моменты нажатия и отпускания
     glutSetKeyRepeat(GL_FALSE);

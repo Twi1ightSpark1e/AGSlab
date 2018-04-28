@@ -52,14 +52,19 @@ void Scene::init(const fs::path &base_path)
     auto xml_shaders = xml_resources.child("Shaders");
     auto xml_shader_light = xml_shaders.find_child_by_attribute("id", "light");
     auto xml_shader_skybox = xml_shaders.find_child_by_attribute("id", "skybox");
+    auto xml_shader_aabb = xml_shaders.find_child_by_attribute("id", "bounding_box");
     ShaderPaths light_shader = {
         base_path / xml_shader_light.attribute("vertex-path").value(),
         base_path / xml_shader_light.attribute("fragment-path").value()
     }, skybox_shader = {
         base_path / xml_shader_skybox.attribute("vertex-path").value(),
         base_path / xml_shader_skybox.attribute("fragment-path").value()
+    }, aabb_shader = {
+        base_path / xml_shader_aabb.attribute("vertex-path").value(),
+        base_path / xml_shader_aabb.attribute("fragment-path").value(),
     };
-    RenderManager::get_instance().init(light_shader, skybox_shader);
+    RenderManager::get_instance().init(light_shader, skybox_shader, aabb_shader);
+    RenderManager::get_instance().set_aabb_mesh_path(base_path / "meshes" / "box.obj");
 
     auto xml_skybox = xml_resources.child("SkyBox");
     auto xml_skybox_basename = xml_skybox.child("Basename");
@@ -166,19 +171,21 @@ void Scene::simulate_mouse()
 
 void Scene::simulate_keyboard(double delta_s)
 {
-    if (InputManager::get_instance().get_arrow_state(GLUT_KEY_LEFT) == GLUT_DOWN)
+    static InputManager &input_manager = InputManager::get_instance();
+
+    if (input_manager.get_arrow_state(GLUT_KEY_LEFT) == GLUT_DOWN)
     {
         camera.move_oxz(0, -delta_s);
     }
-    if (InputManager::get_instance().get_arrow_state(GLUT_KEY_UP) == GLUT_DOWN)
+    if (input_manager.get_arrow_state(GLUT_KEY_UP) == GLUT_DOWN)
     {
         camera.move_oxz(delta_s, 0);
     }
-    if (InputManager::get_instance().get_arrow_state(GLUT_KEY_RIGHT) == GLUT_DOWN)
+    if (input_manager.get_arrow_state(GLUT_KEY_RIGHT) == GLUT_DOWN)
     {
         camera.move_oxz(0, delta_s);
     }
-    if (InputManager::get_instance().get_arrow_state(GLUT_KEY_DOWN) == GLUT_DOWN)
+    if (input_manager.get_arrow_state(GLUT_KEY_DOWN) == GLUT_DOWN)
     {
         camera.move_oxz(-delta_s, 0);
     }

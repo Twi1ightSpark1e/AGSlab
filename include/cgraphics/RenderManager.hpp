@@ -44,7 +44,7 @@ private:
         glm::vec4 mSpecular;
     };
 
-    Shader light_shader, skybox_shader;
+    Shader light_shader, skybox_shader, aabb_shader;
     Camera camera;
     Light  light;
     SkyBox skybox;
@@ -52,6 +52,9 @@ private:
     std::map<int, ObjectState> object_states;
     GLuint per_scene_ubo_index;
     static long update_count;
+
+    std::experimental::filesystem::path aabb_mesh_id;
+    bool aabb_render_mode = false;
 
     RenderManager() = default;
     ~RenderManager() = default;
@@ -76,7 +79,7 @@ public:
         return update_count;
     }
 
-    void init(const ShaderPaths& light, const ShaderPaths& skybox);
+    void init(const ShaderPaths& light, const ShaderPaths& skybox, const ShaderPaths& aabb);
     void start();
 
     void set_camera(const Camera &camera);
@@ -85,4 +88,11 @@ public:
     void add_to_queue(GraphicObject object);
 
     void finish();
+
+    void set_aabb_mesh_path(const std::experimental::filesystem::path &path);
+    void toggle_aabb_render_mode();
+private:
+    void render_skybox();
+    void render_objects();
+    void render_aabb();
 };

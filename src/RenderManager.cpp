@@ -10,7 +10,7 @@ namespace fs = std::experimental::filesystem;
 
 long RenderManager::update_count;
 
-void RenderManager::init(const ShaderPaths& light, const ShaderPaths& skybox)
+void RenderManager::init(const ShaderPaths& light, const ShaderPaths& skybox, const ShaderPaths& aabb)
 {
     light_shader.load_vertex_shader(light.vertex, false);
     light_shader.load_fragment_shader(light.fragment, false);
@@ -20,13 +20,16 @@ void RenderManager::init(const ShaderPaths& light, const ShaderPaths& skybox)
     skybox_shader.load_fragment_shader(skybox.fragment, false);
     skybox_shader.link(false);
 
+    aabb_shader.load_vertex_shader(aabb.vertex, false);
+    aabb_shader.load_fragment_shader(aabb.fragment, false);
+    aabb_shader.link(false);
+
     create_per_scene_block();
 }
 
 void RenderManager::start()
 {
     glClear(GL_DEPTH_BUFFER_BIT);
-
     objects.clear();
 }
 
@@ -90,43 +93,15 @@ void RenderManager::add_to_queue(GraphicObject object)
 
 void RenderManager::finish()
 {
-    glEnable (GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glDepthFunc(GL_LESS);
-
-    light_shader.activate();
-    light_shader.set_uniform_int("tex", 1);
-    
-    glBindBuffer(GL_UNIFORM_BUFFER, per_scene_ubo_index);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, per_scene_ubo_index);
-    
-    for (auto &object : objects)
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    render_objects();
+    render_skybox();
+    if (aabb_render_mode)
     {
-        if (!object_states[object.get_id()].updated)
-        {
-            update_per_object_block(object_states[object.get_id()].ubo_index, object);
-            object_states[object.get_id()].updated = true;
-        }
-        ResourceManager::get_instance().get_texture(object.get_texture()).apply(GL_TEXTURE1);
-        glBindBufferBase(GL_UNIFORM_BUFFER, 1, object_states[object.get_id()].ubo_index);
-        ResourceManager::get_instance().get_mesh(object.get_mesh()).render();
+        render_aabb();
     }
-
-    glDepthFunc(GL_LEQUAL);
-    glCullFace(GL_FRONT);
-
-    skybox_shader.activate();
-    skybox_shader.set_uniform_int("tex", 0);
-    skybox_shader.set_uniform_mat4("uProjectionMatrix", camera.get_projection_matrix());
-    skybox_shader.set_uniform_mat4("uModelViewMatrix", camera.get_view_matrix() * glm::mat4 {
-        {1, 0, 0, 0},
-        {0, 1, 0, 0},
-        {0, 0, 1, 0},
-        {0, 0, 0, 1},
-    });
-    skybox.render(GL_TEXTURE0);
-
     Shader::deactivate();
     glutSwapBuffers();
 }
@@ -190,4 +165,78 @@ void   RenderManager::update_per_object_block(int ubo_index, const GraphicObject
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     RenderManager::update_count++;
+}
+
+void RenderManager::set_aabb_mesh_path(const fs::path &path)
+{
+    aabb_mesh_id = path;
+}
+
+void RenderManager::toggle_aabb_render_mode()
+{
+    aabb_render_mode = !aabb_render_mode;
+}
+
+void RenderManager::render_objects()
+{
+    glCullFace(GL_BACK);
+    glDepthFunc(GL_LESS);
+
+    light_shader.activate();
+    light_shader.set_uniform_int("tex", 1);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, per_scene_ubo_index);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, per_scene_ubo_index);
+
+    for (auto &object : objects)
+    {
+        if (!object_states[object.get_id()].updated)
+        {
+            update_per_object_block(object_states[object.get_id()].ubo_index, object);
+            object_states[object.get_id()].updated = true;
+        }
+        ResourceManager::get_instance().get_texture(object.get_texture()).apply(GL_TEXTURE1);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 1, object_states[object.get_id()].ubo_index);
+        ResourceManager::get_instance().get_mesh(object.get_mesh()).render();
+    }
+}
+
+void RenderManager::render_skybox()
+{
+    glDepthFunc(GL_LEQUAL);
+    glCullFace(GL_FRONT);
+
+    skybox_shader.activate();
+    skybox_shader.set_uniform_int("tex", 0);
+    skybox_shader.set_uniform_mat4("uProjectionMatrix", camera.get_projection_matrix());
+    skybox_shader.set_uniform_mat4("uModelViewMatrix", camera.get_view_matrix() * glm::mat4 {
+        {1, 0, 0, 0},
+        {0, 1, 0, 0},
+        {0, 0, 1, 0},
+        {0, 0, 0, 1},
+    });
+    skybox.render(GL_TEXTURE0);
+}
+
+void RenderManager::render_aabb()
+{
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glDisable(GL_CULL_FACE);
+
+    aabb_shader.activate();
+    aabb_shader.set_uniform_mat4("ProjectionMatrix", camera.get_projection_matrix());
+    aabb_shader.set_uniform_vec4("Color", glm::vec4(1, 0, 0, 1));
+
+    for (auto &object : objects)
+    {
+        auto aabb = object.get_aabb();
+        auto scale = glm::mat4 {
+            {aabb[0],       0,       0, 0},
+            {      0, aabb[1],       0, 0},
+            {      0,       0, aabb[2], 0},
+            {      0,       0,       0, 1},
+        };
+        aabb_shader.set_uniform_mat4("ModelViewMatrix", camera.get_view_matrix() * object.get_model() * scale);
+        ResourceManager::get_instance().get_mesh(aabb_mesh_id).render();
+    }
 }

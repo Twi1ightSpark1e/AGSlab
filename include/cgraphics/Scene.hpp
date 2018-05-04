@@ -43,7 +43,9 @@ private:
     pugi::xml_document xml;
     std::experimental::filesystem::path base_path;
     NetProtocol protocol;
+    bool culling_enabled = true;
 
+    void frustum_culling();
     GraphicObject create_graphic_object(const std::string &name);
     void simulate_mouse();
     void simulate_keyboard(double delta_s);
@@ -54,7 +56,8 @@ public:
     void simulate(double seconds);
     void draw();
 
-    unsigned long get_objects_count() const;
+    bool get_culling_enabled() const;
+    void toggle_culling();
 
     Camera &get_camera();
 };

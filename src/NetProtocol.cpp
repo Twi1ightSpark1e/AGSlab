@@ -40,14 +40,6 @@ void NetProtocol::connect(const std::string &address, unsigned short port) noexc
     }
 }
 
-NetProtocol::~NetProtocol()
-{
-    if (sock.isValid())
-    {
-        sock.close();
-    }
-}
-
 std::string NetProtocol::get_welcome_message()
 {
     if (!sock.isValid())
@@ -69,10 +61,10 @@ std::string NetProtocol::get_welcome_message()
         sock.receive(reinterpret_cast<char*>(&request), sizeof(request));
         if (request.data_length > 1)
         {
-            auto received_data = new char[request.data_length - 1];
             wait_for_bytes(request.data_length - 1);
-            sock.receive(received_data, request.data_length - 1);
-            return std::string(received_data);
+            auto str = sock.receiveString(request.data_length - 1);
+            str = str.substr(0, str.find('\0'));
+            return str;
         }
         std::cout << "Cannot send welcome message - it is too short!" << std::endl;
     }

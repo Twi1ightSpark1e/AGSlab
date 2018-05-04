@@ -177,6 +177,11 @@ void RenderManager::toggle_aabb_render_mode()
     aabb_render_mode = !aabb_render_mode;
 }
 
+unsigned long RenderManager::get_objects_count() const
+{
+    return objects.size();
+}
+
 void RenderManager::render_objects()
 {
     glCullFace(GL_BACK);

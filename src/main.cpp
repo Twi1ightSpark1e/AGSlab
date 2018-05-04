@@ -33,20 +33,19 @@ int current_fps;
 void display()
 {
     using namespace std::chrono;
+    using namespace std::string_literals;
 
     static auto time_base = high_resolution_clock::now();;
     static auto frames = 0;
 
-    RenderManager::get_instance().start();
     scene.draw();
-    RenderManager::get_instance().finish();
 
     auto time_current = high_resolution_clock::now();
     auto time_from_base = duration_cast<milliseconds>(time_current - time_base).count();
     frames++;
     glutSetWindowTitle(("FPS: " + std::to_string(current_fps) + 
-            "; UBO Updates = " + std::to_string(RenderManager::get_update_count()) + 
-            "; Objects = " + std::to_string(scene.get_objects_count())).c_str());
+            "; Frustum = " + (scene.get_culling_enabled() ? "Yes"s : "No"s) + 
+            "; Objects = " + std::to_string(RenderManager::get_instance().get_objects_count())).c_str());
     if (time_from_base >= 500)
     {
         current_fps = int(frames * 1000. / time_from_base);
@@ -157,6 +156,10 @@ int main(int argc,char **argv)
     //  3. если нажата кнопка 2 - сменить режим отображения AABB
     input_manager.set_key_handler('0' + 2, [] {
         RenderManager::get_instance().toggle_aabb_render_mode();
+    });
+    //  4. если нажата кнопка 1 - сменить режим Frustum Culling
+    input_manager.set_key_handler('0' + 1, [] {
+        scene.toggle_culling();
     });
     // убираем повторение кнопок, т.к. мы регистрируем моменты нажатия и отпускания
     glutSetKeyRepeat(GL_FALSE);

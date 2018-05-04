@@ -78,6 +78,7 @@ public:
     {
         return update_count;
     }
+    unsigned long get_objects_count() const;
 
     void init(const ShaderPaths& light, const ShaderPaths& skybox, const ShaderPaths& aabb);
     void start();

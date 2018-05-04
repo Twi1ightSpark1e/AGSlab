@@ -50,7 +50,6 @@ public:
     {
         connect(address, port);
     }
-    ~NetProtocol();
 
     void connect(const std::string &address, unsigned short port) noexcept;
     std::string get_welcome_message();

@@ -79,7 +79,8 @@ void Scene::simulate(double seconds)
     simulate_keyboard(seconds);
     simulate_mouse();
 
-    auto descriptions = protocol.get_nearby_objects(camera.get_eye() + camera.get_center(), 50);
+    objects.clear();
+    auto descriptions = protocol.get_nearby_objects(camera.get_eye() + camera.get_center(), 100);
     for (auto &descr : descriptions)
     {
         auto object = create_graphic_object(std::string(descr.model_name.begin()));
@@ -95,13 +96,60 @@ void Scene::simulate(double seconds)
 
 void Scene::draw()
 {
-    RenderManager::get_instance().set_camera(camera);
-    RenderManager::get_instance().set_light(light);
-    RenderManager::get_instance().set_skybox(skybox);
-    
+    static auto &render_manager = RenderManager::get_instance();
+
+    render_manager.start();
+
+    render_manager.set_camera(camera);
+    render_manager.set_light(light);
+    render_manager.set_skybox(skybox);
+
+    if (culling_enabled)
+    {
+        frustum_culling();
+    }
+    else
+    {
+        for (auto &object : objects)
+        {
+            render_manager.add_to_queue(object.second);
+        }
+    }
+
+    render_manager.finish();
+}
+
+void Scene::frustum_culling()
+{
+    static auto &render_manager = RenderManager::get_instance();
+    std::map<int, GraphicObject> temp;
+
     for (auto &object : objects)
     {
-        RenderManager::get_instance().add_to_queue(object.second);
+        auto pvm = camera.get_projection_matrix() * camera.get_view_matrix() * object.second.get_model();
+        auto aabb = object.second.get_aabb();
+        std::vector<glm::vec4> aabb_vertices = {
+            glm::vec4(+aabb[0], +aabb[1], +aabb[2], 1.0),
+            glm::vec4(+aabb[0], +aabb[1], -aabb[2], 1.0),
+            glm::vec4(+aabb[0], -aabb[1], +aabb[2], 1.0),
+            glm::vec4(+aabb[0], -aabb[1], -aabb[2], 1.0),
+            glm::vec4(-aabb[0], +aabb[1], +aabb[2], 1.0),
+            glm::vec4(-aabb[0], +aabb[1], -aabb[2], 1.0),
+            glm::vec4(-aabb[0], -aabb[1], +aabb[2], 1.0),
+            glm::vec4(-aabb[0], -aabb[1], -aabb[2], 1.0)
+        };
+        for (auto &aabb_vertex : aabb_vertices)
+        {
+            aabb_vertex = pvm * aabb_vertex;
+            aabb_vertex /= aabb_vertex.w;
+
+            if (((aabb_vertex.x <= 1) && (aabb_vertex.x >= -1)) &&
+                ((aabb_vertex.y <= 1) && (aabb_vertex.y >= -1)) &&
+                ((aabb_vertex.z <= 1) && (aabb_vertex.z >= -1)))
+            {
+                render_manager.add_to_queue(object.second);
+            }
+        }
     }
 }
 
@@ -110,9 +158,14 @@ Camera& Scene::get_camera()
     return camera;
 }
 
-unsigned long Scene::get_objects_count() const
+bool Scene::get_culling_enabled() const
 {
-    return objects.size();
+    return culling_enabled;
+}
+
+void Scene::toggle_culling()
+{
+    culling_enabled = !culling_enabled;
 }
 
 GraphicObject Scene::create_graphic_object(const std::string &name)

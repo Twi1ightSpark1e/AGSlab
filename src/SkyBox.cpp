@@ -14,8 +14,8 @@ void SkyBox::load(const fs::path &base_path, const std::string &extension) noexc
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     
     auto base_filename = base_path.filename();
-    load_texture(GL_TEXTURE_CUBE_MAP_POSITIVE_X, (base_path / (base_filename.string() + "_Right")).replace_extension(extension));
-    load_texture(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, (base_path / (base_filename.string() + "_Left")).replace_extension(extension));
+    load_texture(GL_TEXTURE_CUBE_MAP_POSITIVE_X, (base_path / (base_filename.string() + "_Left")).replace_extension(extension));
+    load_texture(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, (base_path / (base_filename.string() + "_Right")).replace_extension(extension));
     load_texture(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, (base_path / (base_filename.string() + "_Up")).replace_extension(extension));
     load_texture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, (base_path / (base_filename.string() + "_Down")).replace_extension(extension));
     load_texture(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, (base_path / (base_filename.string() + "_Front")).replace_extension(extension));

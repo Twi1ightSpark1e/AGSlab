@@ -79,8 +79,8 @@ void Scene::simulate(double seconds)
     simulate_keyboard(seconds);
     simulate_mouse();
 
-    objects.clear();
-    auto descriptions = protocol.get_nearby_objects(camera.get_eye() + camera.get_center(), 100);
+    //objects.clear();
+    auto descriptions = protocol.get_nearby_objects(camera.get_eye() + camera.get_center(), 150);
     for (auto &descr : descriptions)
     {
         auto object = create_graphic_object(std::string(descr.model_name.begin()));
@@ -138,17 +138,22 @@ void Scene::frustum_culling()
             glm::vec4(-aabb[0], -aabb[1], +aabb[2], 1.0),
             glm::vec4(-aabb[0], -aabb[1], -aabb[2], 1.0)
         };
+        bool flag = false;
         for (auto &aabb_vertex : aabb_vertices)
         {
             aabb_vertex = pvm * aabb_vertex;
             aabb_vertex /= aabb_vertex.w;
-
-            if (((aabb_vertex.x <= 1) && (aabb_vertex.x >= -1)) &&
-                ((aabb_vertex.y <= 1) && (aabb_vertex.y >= -1)) &&
-                ((aabb_vertex.z <= 1) && (aabb_vertex.z >= -1)))
+            if (((aabb_vertex.x < 1) && (aabb_vertex.x > -1)) &&
+                ((aabb_vertex.y < 1) && (aabb_vertex.y > -1)) &&
+                ((aabb_vertex.z < 1) && (aabb_vertex.z > -1)))
             {
-                render_manager.add_to_queue(object.second);
+                flag = true;
+                break;
             }
+        }
+        if (flag)
+        {
+            render_manager.add_to_queue(object.second);
         }
     }
 }

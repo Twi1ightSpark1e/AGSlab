@@ -11,6 +11,17 @@
 #   include <sys/ioctl.h>
 #endif
 
+NetProtocol::~NetProtocol()
+{
+    using namespace std::chrono_literals;
+
+    stop_thread = true;
+    if (polling.joinable())
+    {
+        polling.join();
+    }
+}
+
 void NetProtocol::wait_for_bytes(unsigned int amount)
 {
     unsigned long bytes_to_read = 0;
@@ -122,54 +133,84 @@ std::vector<NetProtocol::GameObjectDescription> NetProtocol::get_demo_scene()
     return out;
 }
 
-std::vector<NetProtocol::GameObjectDescription> NetProtocol::get_nearby_objects(glm::vec3 position, float radius)
+void NetProtocol::nearby_objects_polling()
 {
-    if (!sock.isValid())
+    using namespace std::chrono_literals;
+
+    while (!stop_thread)
     {
-        std::cout << "Cannot get nearby objects - socket is closed" << std::endl;
-        
-    }
-    SecondNetworkHeader request = {
-        transaction_id++, // transaction_id
-        1,                // frame_number
-        1,                // frame_count
-        17,               // data_length
-        2,                // function_id
+        if (!sock.isValid())
         {
-            position.x,       // eye_position_x
-            position.y,       // eye_position_y
-            position.z,       // eye_position_z
-        },
-        radius            // radius
-    };
-    std::vector<GameObjectDescription> out;
-    try
-    {
-        sock.send(reinterpret_cast<char*>(&request), sizeof(SecondNetworkHeader));
-        wait_for_bytes(sizeof(NetworkHeader));
-        sock.receive(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
-        if (request.data_length > 1)
-        {
-            unsigned int count;
-            wait_for_bytes(sizeof(int));
-            sock.receive(reinterpret_cast<char*>(&count), sizeof(int));
-            GameObjectDescription descr;
-            for (unsigned int i = 0; i < count; i++)
+            std::cout << "Cannot get nearby objects - socket is closed" << std::endl;
+            std::this_thread::sleep_for(500ms);
+            continue;
+        }
+
+        parameters_synchronizer.lock();
+        SecondNetworkHeader request = {
+            transaction_id++, // transaction_id
+            1,                // frame_number
+            1,                // frame_count
+            17,               // data_length
+            2,                // function_id
             {
-                wait_for_bytes(sizeof(GameObjectDescription));
-                sock.receive(reinterpret_cast<char*>(&descr), sizeof(GameObjectDescription));
-                out.push_back(descr);
+                last_position.x,       // eye_position_x
+                last_position.y,       // eye_position_y
+                last_position.z,       // eye_position_z
+            },
+            last_radius            // radius
+        };
+        parameters_synchronizer.unlock();
+
+        std::vector<GameObjectDescription> out;
+        try
+        {
+            sock.send(reinterpret_cast<char*>(&request), sizeof(SecondNetworkHeader));
+            wait_for_bytes(sizeof(NetworkHeader));
+            sock.receive(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
+            if (request.data_length > 1)
+            {
+                unsigned int count;
+                wait_for_bytes(sizeof(int));
+                sock.receive(reinterpret_cast<char*>(&count), sizeof(int));
+                GameObjectDescription descr;
+                for (unsigned int i = 0; i < count; i++)
+                {
+                    wait_for_bytes(sizeof(GameObjectDescription));
+                    sock.receive(reinterpret_cast<char*>(&descr), sizeof(GameObjectDescription));
+                    out.push_back(descr);
+                }
+            }
+            else
+            {
+                std::cout << "Cannot get nearby objects - not enough information from server!" << std::endl;
             }
         }
-        else
+        catch (ohf::Exception &exc)
         {
-            std::cout << "Cannot get nearby objects - not enough information from server!" << std::endl;
+            std::cout << "Something went wrong!" << std::endl;
+            std::cout << exc.message() << std::endl;
         }
+
+        result_synchronizer.lock();
+        nearby_objects = std::move(out);
+        result_synchronizer.unlock();
     }
-    catch (ohf::Exception &exc)
+}
+
+std::vector<NetProtocol::GameObjectDescription> NetProtocol::get_nearby_objects(glm::vec3 position, float radius)
+{
+    parameters_synchronizer.lock();
+    last_position = position;
+    last_radius = radius;
+    parameters_synchronizer.unlock();
+
+    if (!polling.joinable())
     {
-        std::cout << "Something went wrong!" << std::endl;
-        std::cout << exc.message() << std::endl;
+        stop_thread = false;
+        polling = std::thread(&NetProtocol::nearby_objects_polling, this);
     }
-    return out;
+
+    std::lock_guard lock(result_synchronizer);
+    return nearby_objects;
 }

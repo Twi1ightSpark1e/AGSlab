@@ -46,7 +46,7 @@ private:
     bool culling_enabled = true;
 
     void frustum_culling();
-    GraphicObject create_graphic_object(const std::string &name);
+    void create_graphic_object(const std::string &name, GraphicObject &out);
     void simulate_mouse();
     void simulate_keyboard(double delta_s);
 public:

@@ -79,18 +79,19 @@ void Scene::simulate(double seconds)
     simulate_keyboard(seconds);
     simulate_mouse();
 
-    //objects.clear();
-    auto descriptions = protocol.get_nearby_objects(camera.get_eye() + camera.get_center(), 150);
+    auto descriptions = protocol.get_nearby_objects(camera.get_eye() + camera.get_center(), 100);
     for (auto &descr : descriptions)
     {
-        auto object = create_graphic_object(std::string(descr.model_name.begin()));
+        auto &object = objects[descr.object_id];
+        if (!object.initialized())
+        {
+            create_graphic_object(std::string(descr.model_name.begin()), object);
+        }
 
         object.set_id(descr.object_id);
         object.set_position(glm::vec3(descr.x, descr.y, descr.z));
         object.set_rotation(-descr.rotation);
         object.set_aabb(descr.aabb);
-
-        objects[descr.object_id] = object;
     }
 }
 
@@ -173,12 +174,11 @@ void Scene::toggle_culling()
     culling_enabled = !culling_enabled;
 }
 
-GraphicObject Scene::create_graphic_object(const std::string &name)
+void Scene::create_graphic_object(const std::string &name, GraphicObject &out)
 {
     static auto xml_resources = xml.child("Resources");
     static auto xml_models = xml_resources.child("Models");
 
-    GraphicObject graphic_object;
     Material material;
 
     auto xml_model = xml_models.find_child_by_attribute("id", name.c_str());
@@ -194,11 +194,9 @@ GraphicObject Scene::create_graphic_object(const std::string &name)
 
     ResourceManager::get_instance().get_mesh(xml_model_mesh);
     ResourceManager::get_instance().get_texture(xml_model_material_texture);
-    graphic_object.set_mesh(xml_model_mesh);
-    graphic_object.set_material(material);
-    graphic_object.set_texture(xml_model_material_texture);
-
-    return graphic_object;
+    out.set_mesh(xml_model_mesh);
+    out.set_material(material);
+    out.set_texture(xml_model_material_texture);
 }
 
 void Scene::simulate_mouse()

@@ -17,8 +17,11 @@ private:
     Material material;
     glm::mat4 model;
     std::array<float, 3> aabb;
+    bool is_initialized;
 public:
     GraphicObject();
+
+    bool initialized() const;
 
     void set_id(const int &id);
     int get_id() const;

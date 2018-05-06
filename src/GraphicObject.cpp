@@ -12,11 +12,19 @@ GraphicObject::GraphicObject()
         glm::vec4(0, 0, 1, 0),
         glm::vec4(0, 0, 0, 1)
     );
+
+    is_initialized = false;
+}
+
+bool GraphicObject::initialized() const
+{
+    return is_initialized;
 }
 
 void GraphicObject::set_id(const int &id)
 {
     this->id = id;
+    is_initialized = true;
 }
 
 int GraphicObject::get_id() const

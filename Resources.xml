@@ -2,7 +2,7 @@
 <Resources>
 
   <Server>
-    <IP value="192.168.0.23" />
+    <IP value="127.0.0.1" />
     <Port value="27000" />
   </Server>
   
@@ -13,7 +13,7 @@
   
   <Camera>
     <Radius current="30.0" min="20.0" max="70.0"/>
-    <AngleTangage current="45.0" min="25.0" max="80.0"/>  <!-- угол в градусах относительно плоскости Oxz -->
+    <AngleTangage current="45.0" min="10.0" max="80.0"/>  <!-- угол в градусах относительно плоскости Oxz -->
     <AngleYaw current="45.0"/>                            <!-- угол в градусах относительно Oy против часовой стрелки -->
   </Camera>
 

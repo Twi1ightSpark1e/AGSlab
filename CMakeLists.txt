@@ -5,9 +5,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wpedantic")
 
-if ( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-    set(CMAKE_CXX_FLAGS "-DDEBUG ${CMAKE_CXX_FLAGS}")
-endif()
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -DDEBUG -O0")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -35,6 +34,7 @@ find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(GLM REQUIRED)
 find_package(PugiXML REQUIRED)
+find_package(Threads REQUIRED)
 
 include_directories(
     ${OPENGL_INCLUDE_DIRS}
@@ -58,6 +58,7 @@ target_link_libraries(cgraphics
     "pugixml"
     "stdc++fs"
     "ohf"
+    ${CMAKE_THREAD_LIBS_INIT}
 )
 
 find_program(clangtidy_path NAMES clang-tidy)

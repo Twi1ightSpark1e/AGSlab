@@ -44,7 +44,11 @@ void display()
     auto time_from_base = duration_cast<milliseconds>(time_current - time_base).count();
     frames++;
     glutSetWindowTitle(("FPS: " + std::to_string(current_fps) + 
-            "; Frustum = " + (scene.get_culling_enabled() ? "Yes"s : "No"s) + 
+            "; Optimization = " + (scene.get_enabled_optimizations() 
+                ? (scene.get_enabled_optimizations() == Scene::Optimization::Frustum
+                    ? "Frustum"s
+                    : "Frustum + LoD"s)
+                : "None"s) + 
             "; Objects = " + std::to_string(RenderManager::get_instance().get_objects_count())).c_str());
     if (time_from_base >= 500)
     {
@@ -99,7 +103,7 @@ int main(int argc,char **argv)
     // устанавливаем размер окна
     glutInitWindowSize(800,600);
     // создание окна
-    glutCreateWindow("laba_07");
+    glutCreateWindow("laba_08");
 
     // Инициализация DevIL
     ilInit();
@@ -154,12 +158,12 @@ int main(int argc,char **argv)
         std::cout << std::endl;
     });
     //  3. если нажата кнопка 2 - сменить режим отображения AABB
-    input_manager.set_key_handler('0' + 2, [] {
+    input_manager.set_key_handler('2', [] {
         RenderManager::get_instance().toggle_aabb_render_mode();
     });
-    //  4. если нажата кнопка 1 - сменить режим Frustum Culling
-    input_manager.set_key_handler('0' + 1, [] {
-        scene.toggle_culling();
+    //  4. если нажата кнопка 3 - сменить режим Frustum Culling
+    input_manager.set_key_handler('3', [] {
+        scene.next_optimization();
     });
     // убираем повторение кнопок, т.к. мы регистрируем моменты нажатия и отпускания
     glutSetKeyRepeat(GL_FALSE);

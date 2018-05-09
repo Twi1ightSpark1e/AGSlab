@@ -17,6 +17,7 @@ private:
     Material material;
     glm::mat4 model;
     std::array<float, 3> aabb;
+    unsigned char object_type;
     bool is_initialized;
 public:
     GraphicObject();
@@ -39,9 +40,13 @@ public:
     void set_position(const glm::vec3 &position);
     void set_rotation(const float &degree);
     glm::mat4 get_model() const;
+    glm::vec3 get_position() const;
 
     void set_aabb(const std::array<float, 3> &aabb);
     std::array<float, 3> get_aabb() const;
+
+    void set_object_type(const unsigned char &type);
+    unsigned char get_object_type() const;
 
     bool operator==(const GraphicObject &b) const;
     bool operator!=(const GraphicObject &b) const;

@@ -79,7 +79,7 @@ void Scene::simulate(double seconds)
     simulate_keyboard(seconds);
     simulate_mouse();
 
-    auto descriptions = protocol.get_nearby_objects(camera.get_eye() + camera.get_center(), 100);
+    auto descriptions = protocol.get_nearby_objects(camera.get_eye() + camera.get_center(), 150);
     for (auto &descr : descriptions)
     {
         auto &object = objects[descr.object_id];
@@ -92,6 +92,7 @@ void Scene::simulate(double seconds)
         object.set_position(glm::vec3(descr.x, descr.y, descr.z));
         object.set_rotation(-descr.rotation);
         object.set_aabb(descr.aabb);
+        object.set_object_type(descr.object_type);
     }
 }
 
@@ -105,30 +106,63 @@ void Scene::draw()
     render_manager.set_light(light);
     render_manager.set_skybox(skybox);
 
+    std::vector<std::reference_wrapper<GraphicObject>> render_objects;
+    for (auto &pair : objects)
+    {
+        render_objects.push_back(pair.second);
+    }
+
+    if (lod_enabled)
+    {
+        level_of_detail(render_objects);
+    }
     if (culling_enabled)
     {
-        frustum_culling();
+        frustum_culling(render_objects);
     }
-    else
+
+    for (auto &object : render_objects)
     {
-        for (auto &object : objects)
-        {
-            render_manager.add_to_queue(object.second);
-        }
+        render_manager.add_to_queue(object.get());
     }
 
     render_manager.finish();
 }
 
-void Scene::frustum_culling()
+void Scene::level_of_detail(std::vector<std::reference_wrapper<GraphicObject>> &render_objects)
 {
-    static auto &render_manager = RenderManager::get_instance();
+    static std::vector<float> max_distances {
+        600, // object_type = 0
+        600, // object_type = 1
+        600, // object_type = 2
+        300, // object_type = 3
+        250, // object_type = 4
+        250, // object_type = 5
+        150, // object_type = 6
+        150, // object_type = 7
+    };
+    auto camera_position = camera.get_eye() + camera.get_center();
+    for (auto it = render_objects.begin(); it < render_objects.end(); it++)
+    {
+        auto &object = it->get();
+        auto distance = glm::distance(camera_position, object.get_position());
+        if (distance > max_distances[object.get_object_type()])
+        {
+            render_objects.erase(it--);
+        }
+    }
+}
+
+void Scene::frustum_culling(std::vector<std::reference_wrapper<GraphicObject>> &render_objects)
+{
     std::map<int, GraphicObject> temp;
 
-    for (auto &object : objects)
+    for (auto it = render_objects.begin(); it < render_objects.end(); it++)
     {
-        auto pvm = camera.get_projection_matrix() * camera.get_view_matrix() * object.second.get_model();
-        auto aabb = object.second.get_aabb();
+        auto &object = it->get();
+
+        auto pvm = camera.get_projection_matrix() * camera.get_view_matrix() * object.get_model();
+        auto aabb = object.get_aabb();
         std::vector<glm::vec4> aabb_vertices = {
             glm::vec4(+aabb[0], +aabb[1], +aabb[2], 1.0),
             glm::vec4(+aabb[0], +aabb[1], -aabb[2], 1.0),
@@ -152,9 +186,9 @@ void Scene::frustum_culling()
                 break;
             }
         }
-        if (flag)
+        if (!flag)
         {
-            render_manager.add_to_queue(object.second);
+            render_objects.erase(it--);
         }
     }
 }
@@ -164,14 +198,28 @@ Camera& Scene::get_camera()
     return camera;
 }
 
-bool Scene::get_culling_enabled() const
+Scene::Optimization Scene::get_enabled_optimizations() const
 {
-    return culling_enabled;
+    return (Optimization)((int)culling_enabled + (int)lod_enabled);
 }
 
-void Scene::toggle_culling()
+void Scene::next_optimization()
 {
-    culling_enabled = !culling_enabled;
+    switch (get_enabled_optimizations())
+    {
+        case Optimization::None:
+            culling_enabled = true;
+            return;
+        case Optimization::Frustum:
+            lod_enabled = true;
+            return;
+        case Optimization::FrustumLoD:
+            culling_enabled = lod_enabled = false;
+            return;
+        default:
+            std::cout << "Wrong optimization level! Current value = " << get_enabled_optimizations() << std::endl;
+            return;
+    }
 }
 
 void Scene::create_graphic_object(const std::string &name, GraphicObject &out)

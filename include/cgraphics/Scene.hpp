@@ -43,21 +43,24 @@ private:
     pugi::xml_document xml;
     std::experimental::filesystem::path base_path;
     NetProtocol protocol;
-    bool culling_enabled = true;
+    bool culling_enabled = true, lod_enabled = true;
 
-    void frustum_culling();
+    void frustum_culling(std::vector<std::reference_wrapper<GraphicObject>> &render_objects);
+    void level_of_detail(std::vector<std::reference_wrapper<GraphicObject>> &render_objects);
     void create_graphic_object(const std::string &name, GraphicObject &out);
     void simulate_mouse();
     void simulate_keyboard(double delta_s);
 public:
+    enum Optimization { None, Frustum, FrustumLoD };
+
     Scene() noexcept {} // NOLINT cause linter suggests replace {} with default, but it's not valid
 
     void init(const std::experimental::filesystem::path &base_path);
     void simulate(double seconds);
     void draw();
 
-    bool get_culling_enabled() const;
-    void toggle_culling();
+    Optimization get_enabled_optimizations() const;
+    void next_optimization();
 
     Camera &get_camera();
 };

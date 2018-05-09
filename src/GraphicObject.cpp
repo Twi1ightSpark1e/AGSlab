@@ -86,6 +86,11 @@ glm::mat4 GraphicObject::get_model() const
     return model;
 }
 
+glm::vec3 GraphicObject::get_position() const
+{
+    return glm::vec3(model[3][0], model[3][1], model[3][2]);
+}
+
 void GraphicObject::set_aabb(const std::array<float, 3> &aabb)
 {
     this->aabb = aabb;
@@ -94,6 +99,16 @@ void GraphicObject::set_aabb(const std::array<float, 3> &aabb)
 std::array<float, 3> GraphicObject::get_aabb() const
 {
     return aabb;
+}
+
+void GraphicObject::set_object_type(const unsigned char &type)
+{
+    object_type = type;
+}
+
+unsigned char GraphicObject::get_object_type() const
+{
+    return object_type;
 }
 
 bool GraphicObject::operator==(const GraphicObject &b) const

@@ -35,21 +35,72 @@ void display()
     using namespace std::chrono;
     using namespace std::string_literals;
 
-    static auto time_base = high_resolution_clock::now();;
+    static auto time_base = high_resolution_clock::now();
     static auto frames = 0;
+    static auto &render_manager = RenderManager::get_instance();
 
     scene.draw();
 
     auto time_current = high_resolution_clock::now();
     auto time_from_base = duration_cast<milliseconds>(time_current - time_base).count();
     frames++;
-    glutSetWindowTitle(("FPS: " + std::to_string(current_fps) + 
-            "; Optimization = " + (scene.get_enabled_optimizations() 
-                ? (scene.get_enabled_optimizations() == Scene::Optimization::Frustum
-                    ? "Frustum"s
-                    : "Frustum + LoD"s)
-                : "None"s) + 
-            "; Objects = " + std::to_string(RenderManager::get_instance().get_objects_count())).c_str());
+
+    std::string optimization;
+    switch (scene.get_enabled_optimizations())
+    {
+        case Scene::Optimization::None:
+            optimization = "None"s;
+            break;
+        case Scene::Optimization::Frustum:
+            optimization = "Frustum"s;
+            break;
+        case Scene::Optimization::FrustumLoD:
+            optimization = "Frustum + LoD"s;
+            break;
+    }
+
+    std::string msaa_mode;
+    switch (render_manager.get_multisampling_mode())
+    {
+        case RenderManager::MSAAMode::None:
+            msaa_mode = "NoMSAA"s;
+            break;
+        case RenderManager::MSAAMode::X2:
+            msaa_mode = "MSAAx2"s;
+            break;
+        case RenderManager::MSAAMode::X4:
+            msaa_mode = "MSAAx4"s;
+            break;
+        case RenderManager::MSAAMode::X8:
+            msaa_mode = "MSAAx8"s;
+            break;
+        default:
+            msaa_mode = "Wrong MSAA";
+            return;
+    }
+
+    std::string post_processing;
+    switch (render_manager.get_post_processing())
+    {
+        case RenderManager::PostProcessingMode::Simple:
+            post_processing = "Simple";
+            break;
+        case RenderManager::PostProcessingMode::Sepia:
+            post_processing = "Sepia";
+            break;
+        case RenderManager::PostProcessingMode::Grey:
+            post_processing = "Grey";
+            break;
+        default:
+            post_processing = "Wrong PP";
+            break;
+    }
+
+    glutSetWindowTitle(("[" + std::to_string(current_fps) + " FPS]" + 
+            "[" + msaa_mode + "]" +
+            "[" + post_processing + "]" +
+            "[optimization: " + optimization + "]" +
+            "[objects: " + std::to_string(render_manager.get_objects_count()) + "]").c_str());
     if (time_from_base >= 500)
     {
         current_fps = int(frames * 1000. / time_from_base);
@@ -64,7 +115,7 @@ void reshape(int w,int h)
     // установить новую область просмотра, равную всей области окна
     glViewport(0,0,(GLsizei)w, (GLsizei)h);
     scene.get_camera().set_projection_matrix(glm::radians(45.0), float(w) / float(h), .1, 1000);
-    RenderManager::get_instance().get_framebuffer_object().init(w, h, 1);
+    RenderManager::get_instance().initialize_framebuffers(w, h);
 }
 
 // функция вызывается когда процессор простаивает, т.е. максимально часто
@@ -158,11 +209,15 @@ int main(int argc,char **argv)
         std::cout << " Where the camera is looking: (" << center.x << "; " << center.y << "; " << center.z << ")" << std::endl;
         std::cout << std::endl;
     });
-    //  3. если нажата кнопка 2 - сменить режим отображения AABB
-    input_manager.set_key_handler('2', [] {
-        RenderManager::get_instance().toggle_aabb_render_mode();
+    //  3. если нажата кнопка 1 - сменить режим сглаживания
+    input_manager.set_key_handler('1', [] {
+        RenderManager::get_instance().next_multisampling_mode();
     });
-    //  4. если нажата кнопка 3 - сменить режим Frustum Culling
+    //  4. если нажата кнопка 2 - сменить режим отображения AABB
+    input_manager.set_key_handler('2', [] {
+        RenderManager::get_instance().next_post_processing();
+    });
+    //  5. если нажата кнопка 3 - сменить режим Frustum Culling
     input_manager.set_key_handler('3', [] {
         scene.next_optimization();
     });

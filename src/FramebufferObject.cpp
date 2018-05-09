@@ -8,11 +8,8 @@ int FramebufferObject::FramebufferObject::width, FramebufferObject::FramebufferO
 
 void FramebufferObject::init(int width, int height, int samples)
 {
-    std::cout << "Initializing FBO with w=" << width << "; h=" << height << std::endl;
     if (fbo_index != 0)
     {
-        std::cout << "Deleting previous FBO with w=" << FramebufferObject::width << "; h=" << FramebufferObject::height << std::endl;
-
         glDeleteTextures(1, &color_tex);
         glDeleteTextures(1, &depth_tex);
 
@@ -63,7 +60,7 @@ void FramebufferObject::init_multisample()
     glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples,
-        GL_COLOR_RENDERABLE, FramebufferObject::width, FramebufferObject::height, false);
+        GL_RGBA, FramebufferObject::width, FramebufferObject::height, false);
 
     glGenTextures(1, &depth_tex);
     glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, depth_tex);
@@ -71,7 +68,7 @@ void FramebufferObject::init_multisample()
     glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
     glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
     glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples,
-        GL_DEPTH_RENDERABLE, FramebufferObject::width, FramebufferObject::height, false);
+        GL_DEPTH_COMPONENT24, FramebufferObject::width, FramebufferObject::height, false);
 
     glGenFramebuffers(1, &fbo_index);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo_index);
@@ -87,14 +84,12 @@ void FramebufferObject::bind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, fbo_index);
     glViewport(0, 0, FramebufferObject::width, FramebufferObject::height);
-    //glDrawBuffer(GL_BACK);
 }
 
 void FramebufferObject::unbind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, FramebufferObject::width, FramebufferObject::height);
-    glDrawBuffer(GL_BACK);
 }
 
 void FramebufferObject::copy_to_fbo(const FramebufferObject &dest)
@@ -104,27 +99,9 @@ void FramebufferObject::copy_to_fbo(const FramebufferObject &dest)
     glBlitFramebuffer(
         0, 0, FramebufferObject::width, FramebufferObject::height,
         0, 0, FramebufferObject::width, FramebufferObject::height,
-        GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
+        GL_COLOR_BUFFER_BIT,
         GL_LINEAR
     );
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void FramebufferObject::copy_to_fbo(const GLuint &dest_id)
-{
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_index);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dest_id);
-    if (dest_id == 0)
-    {
-        glDrawBuffer(GL_BACK);
-    }
-    glBlitFramebuffer(
-        0, 0, FramebufferObject::width, FramebufferObject::height,
-        0, 0, FramebufferObject::width, FramebufferObject::height,
-        GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
-        GL_LINEAR
-    );
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void FramebufferObject::bind_color_texture(GLenum texture_unit)

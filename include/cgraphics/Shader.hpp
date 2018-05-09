@@ -25,14 +25,14 @@ private:
     int get_uniform_location(const std::string &name);
 
 public:
-    enum Types
+    enum Type
     {
-        DirectLight,
-        SkyBox,
-        BoundingBox,
         SimplePostProcessing,
         SepiaPostProcessing,
         GreyPostProcessing,
+        DirectLight,
+        SkyBox,
+        BoundingBox,
         Amount
     };
 

@@ -16,7 +16,6 @@ public:
     static void unbind();
 
     void copy_to_fbo(const FramebufferObject &dest);
-    void copy_to_fbo(const GLuint &dest_id);
 
     void bind_color_texture(GLenum texture_unit = GL_TEXTURE0);
     void bind_depth_texture(GLenum texture_unit = GL_TEXTURE1);

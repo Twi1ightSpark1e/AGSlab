@@ -20,6 +20,23 @@ struct ShaderPaths
 
 class RenderManager
 {
+public:
+    enum MSAAMode
+    {
+        None,
+        X2,
+        X4,
+        X8,
+        mAmount
+    };
+
+    enum PostProcessingMode
+    {
+        Simple,
+        Sepia,
+        Grey,
+        pAmount
+    };
 private:
     struct ObjectState
     {
@@ -45,13 +62,15 @@ private:
         glm::vec4 mSpecular;
     };
 
-    std::array<Shader, Shader::Types::Amount> shaders;
+    std::array<Shader, Shader::Type::Amount> shaders;
     Camera camera;
     Light  light;
     SkyBox skybox;
 
-    FramebufferObject fbo;
+    std::array<FramebufferObject, MSAAMode::mAmount> fbo_array;
     Mesh rectangle;
+    MSAAMode current_msaa;
+    PostProcessingMode pp_mode;
 
     std::vector<GraphicObject> objects;
     std::map<int, ObjectState> object_states;
@@ -85,7 +104,7 @@ public:
     }
     unsigned long get_objects_count() const;
 
-    void init(std::map<Shader::Types, ShaderPaths> paths);
+    void init(std::map<Shader::Type, ShaderPaths> paths);
     void start();
 
     void set_camera(const Camera &camera);
@@ -98,9 +117,14 @@ public:
     void set_aabb_mesh_path(const std::experimental::filesystem::path &path);
     void toggle_aabb_render_mode();
 
-    FramebufferObject& get_framebuffer_object();
+    void next_multisampling_mode();
+    MSAAMode get_multisampling_mode() const;
+    void next_post_processing();
+    PostProcessingMode get_post_processing() const;
+    void initialize_framebuffers(int width, int height);
 private:
     void render_skybox();
     void render_objects();
     void render_aabb();
+    void render_to_screen();
 };

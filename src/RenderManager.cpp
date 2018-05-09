@@ -4,13 +4,14 @@
 #include <GL/freeglut.h>
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 
 namespace fs = std::experimental::filesystem;
 
 long RenderManager::update_count;
 
-void RenderManager::init(std::map<Shader::Types, ShaderPaths> paths)
+void RenderManager::init(std::map<Shader::Type, ShaderPaths> paths)
 {
     for (auto &path : paths)
     {
@@ -24,11 +25,17 @@ void RenderManager::init(std::map<Shader::Types, ShaderPaths> paths)
     create_per_scene_block();
 
     rectangle.load_rectangle();
+    current_msaa = MSAAMode::X8;
 }
 
 void RenderManager::start()
 {
+    fbo_array[current_msaa].bind();
     glClear(GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_MULTISAMPLE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     objects.clear();
 }
 
@@ -92,26 +99,14 @@ void RenderManager::add_to_queue(GraphicObject object)
 
 void RenderManager::finish()
 {
-    fbo.bind();
-    glClearColor (0.0, 0.0, 0.0, 1.0);
-	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_MULTISAMPLE);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     render_objects();
     render_skybox();
     if (aabb_render_mode)
     {
         render_aabb();
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-    FramebufferObject::unbind();
-    shaders[Shader::Types::SimplePostProcessing].activate();
-    fbo.bind_color_texture(GL_TEXTURE3);
-    shaders[Shader::Types::SimplePostProcessing].set_uniform_int("tex", 3);
-    rectangle.render();
+    render_to_screen();
     Shader::deactivate();
     glutSwapBuffers();
 }
@@ -192,9 +187,33 @@ unsigned long RenderManager::get_objects_count() const
     return objects.size();
 }
 
-FramebufferObject& RenderManager::get_framebuffer_object()
+void RenderManager::next_multisampling_mode()
 {
-    return fbo;
+    current_msaa = (MSAAMode)((current_msaa + 1) % (int)MSAAMode::mAmount);
+}
+
+RenderManager::MSAAMode RenderManager::get_multisampling_mode() const
+{
+    return current_msaa;
+}
+
+void RenderManager::next_post_processing()
+{
+    pp_mode = (PostProcessingMode)((pp_mode + 1) % (int)PostProcessingMode::pAmount);
+}
+
+RenderManager::PostProcessingMode RenderManager::get_post_processing() const
+{
+    return pp_mode;
+}
+
+void RenderManager::initialize_framebuffers(int width, int height)
+{
+    int i = 0;
+    for (auto &fbo : fbo_array)
+    {
+        fbo.init(width, height, std::pow(2, i++));
+    }
 }
 
 void RenderManager::render_objects()
@@ -202,8 +221,8 @@ void RenderManager::render_objects()
     glCullFace(GL_BACK);
     glDepthFunc(GL_LESS);
 
-    shaders[Shader::Types::DirectLight].activate();
-    shaders[Shader::Types::DirectLight].set_uniform_int("tex", 1);
+    shaders[Shader::Type::DirectLight].activate();
+    shaders[Shader::Type::DirectLight].set_uniform_int("tex", 1);
 
     glBindBuffer(GL_UNIFORM_BUFFER, per_scene_ubo_index);
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, per_scene_ubo_index);
@@ -226,10 +245,10 @@ void RenderManager::render_skybox()
     glDepthFunc(GL_LEQUAL);
     glCullFace(GL_FRONT);
 
-    shaders[Shader::Types::SkyBox].activate();
-    shaders[Shader::Types::SkyBox].set_uniform_int("tex", 0);
-    shaders[Shader::Types::SkyBox].set_uniform_mat4("uProjectionMatrix", camera.get_projection_matrix());
-    shaders[Shader::Types::SkyBox].set_uniform_mat4("uModelViewMatrix", camera.get_view_matrix() * glm::mat4 {
+    shaders[Shader::Type::SkyBox].activate();
+    shaders[Shader::Type::SkyBox].set_uniform_int("tex", 0);
+    shaders[Shader::Type::SkyBox].set_uniform_mat4("uProjectionMatrix", camera.get_projection_matrix());
+    shaders[Shader::Type::SkyBox].set_uniform_mat4("uModelViewMatrix", camera.get_view_matrix() * glm::mat4 {
         {1, 0, 0, 0},
         {0, 1, 0, 0},
         {0, 0, 1, 0},
@@ -243,9 +262,9 @@ void RenderManager::render_aabb()
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glDisable(GL_CULL_FACE);
 
-    shaders[Shader::Types::BoundingBox].activate();
-    shaders[Shader::Types::BoundingBox].set_uniform_mat4("ProjectionMatrix", camera.get_projection_matrix());
-    shaders[Shader::Types::BoundingBox].set_uniform_vec4("Color", glm::vec4(1, 0, 0, 1));
+    shaders[Shader::Type::BoundingBox].activate();
+    shaders[Shader::Type::BoundingBox].set_uniform_mat4("ProjectionMatrix", camera.get_projection_matrix());
+    shaders[Shader::Type::BoundingBox].set_uniform_vec4("Color", glm::vec4(1, 0, 0, 1));
 
     for (auto &object : objects)
     {
@@ -256,7 +275,24 @@ void RenderManager::render_aabb()
             {      0,       0, aabb[2], 0},
             {      0,       0,       0, 1},
         };
-        shaders[Shader::Types::BoundingBox].set_uniform_mat4("ModelViewMatrix", camera.get_view_matrix() * object.get_model() * scale);
+        shaders[Shader::Type::BoundingBox].set_uniform_mat4("ModelViewMatrix", camera.get_view_matrix() * object.get_model() * scale);
         ResourceManager::get_instance().get_mesh(aabb_mesh_id).render();
     }
+}
+
+void RenderManager::render_to_screen()
+{
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+
+    if (current_msaa != MSAAMode::None)
+    {
+        fbo_array[current_msaa].copy_to_fbo(fbo_array[MSAAMode::None]);
+    }
+
+    FramebufferObject::unbind();
+    shaders[pp_mode].activate();
+    fbo_array[MSAAMode::None].bind_color_texture();
+    shaders[pp_mode].set_uniform_int("tex", 0);
+    rectangle.render();
 }

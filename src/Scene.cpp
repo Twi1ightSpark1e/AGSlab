@@ -76,12 +76,12 @@ void Scene::init(const fs::path &base_path)
         base_path / xml_shader_grey_pp.attribute("fragment-path").value(),
     };
     RenderManager::get_instance().init({
-        { Shader::Types::BoundingBox, aabb_shader },
-        { Shader::Types::DirectLight, light_shader },
-        { Shader::Types::SkyBox, skybox_shader },
-        { Shader::Types::SimplePostProcessing, simple_pp_shader},
-        { Shader::Types::SepiaPostProcessing, sepia_pp_shader},
-        { Shader::Types::GreyPostProcessing, grey_pp_shader}
+        { Shader::Type::BoundingBox, aabb_shader },
+        { Shader::Type::DirectLight, light_shader },
+        { Shader::Type::SkyBox, skybox_shader },
+        { Shader::Type::SimplePostProcessing, simple_pp_shader},
+        { Shader::Type::SepiaPostProcessing, sepia_pp_shader},
+        { Shader::Type::GreyPostProcessing, grey_pp_shader}
     });
     RenderManager::get_instance().set_aabb_mesh_path(base_path / "meshes" / "box.obj");
 

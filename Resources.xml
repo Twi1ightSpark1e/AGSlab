@@ -26,6 +26,10 @@
     <Shader id="light" vertex-path="shaders/direct_light.vsh" fragment-path="shaders/direct_light.fsh"/>
     <Shader id="skybox" vertex-path="shaders/skybox.vsh" fragment-path="shaders/skybox.fsh"/>
     <Shader id="bounding_box" vertex-path="shaders/bounding_box.vsh" fragment-path="shaders/bounding_box.fsh"/>
+    
+    <Shader id="simple_pp" vertex-path="shaders/simple_post_processing.vsh" fragment-path="shaders/simple_post_processing.fsh"/>
+    <Shader id="sepia_pp" vertex-path="shaders/sepia_post_processing.vsh" fragment-path="shaders/sepia_post_processing.fsh"/>
+    <Shader id="grey_pp" vertex-path="shaders/grey_post_processing.vsh" fragment-path="shaders/grey_post_processing.fsh"/>
   </Shaders>
 
   <Models>

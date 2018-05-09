@@ -10,21 +10,20 @@ namespace fs = std::experimental::filesystem;
 
 long RenderManager::update_count;
 
-void RenderManager::init(const ShaderPaths& light, const ShaderPaths& skybox, const ShaderPaths& aabb)
+void RenderManager::init(std::map<Shader::Types, ShaderPaths> paths)
 {
-    light_shader.load_vertex_shader(light.vertex, false);
-    light_shader.load_fragment_shader(light.fragment, false);
-    light_shader.link(false);
+    for (auto &path : paths)
+    {
+        shaders[path.first].load_vertex_shader(path.second.vertex, false);
+        shaders[path.first].load_fragment_shader(path.second.fragment, false);
+        shaders[path.first].link(false);
 
-    skybox_shader.load_vertex_shader(skybox.vertex, false);
-    skybox_shader.load_fragment_shader(skybox.fragment, false);
-    skybox_shader.link(false);
-
-    aabb_shader.load_vertex_shader(aabb.vertex, false);
-    aabb_shader.load_fragment_shader(aabb.fragment, false);
-    aabb_shader.link(false);
+        std::cout << path.second.vertex.filename().replace_extension("") << " compiled and linked" << std::endl;
+    }
 
     create_per_scene_block();
+
+    rectangle.load_rectangle();
 }
 
 void RenderManager::start()
@@ -93,8 +92,12 @@ void RenderManager::add_to_queue(GraphicObject object)
 
 void RenderManager::finish()
 {
+    fbo.bind();
+    glClearColor (0.0, 0.0, 0.0, 1.0);
+	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_MULTISAMPLE);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     render_objects();
     render_skybox();
@@ -102,6 +105,13 @@ void RenderManager::finish()
     {
         render_aabb();
     }
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    FramebufferObject::unbind();
+    shaders[Shader::Types::SimplePostProcessing].activate();
+    fbo.bind_color_texture(GL_TEXTURE3);
+    shaders[Shader::Types::SimplePostProcessing].set_uniform_int("tex", 3);
+    rectangle.render();
     Shader::deactivate();
     glutSwapBuffers();
 }
@@ -182,13 +192,18 @@ unsigned long RenderManager::get_objects_count() const
     return objects.size();
 }
 
+FramebufferObject& RenderManager::get_framebuffer_object()
+{
+    return fbo;
+}
+
 void RenderManager::render_objects()
 {
     glCullFace(GL_BACK);
     glDepthFunc(GL_LESS);
 
-    light_shader.activate();
-    light_shader.set_uniform_int("tex", 1);
+    shaders[Shader::Types::DirectLight].activate();
+    shaders[Shader::Types::DirectLight].set_uniform_int("tex", 1);
 
     glBindBuffer(GL_UNIFORM_BUFFER, per_scene_ubo_index);
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, per_scene_ubo_index);
@@ -211,10 +226,10 @@ void RenderManager::render_skybox()
     glDepthFunc(GL_LEQUAL);
     glCullFace(GL_FRONT);
 
-    skybox_shader.activate();
-    skybox_shader.set_uniform_int("tex", 0);
-    skybox_shader.set_uniform_mat4("uProjectionMatrix", camera.get_projection_matrix());
-    skybox_shader.set_uniform_mat4("uModelViewMatrix", camera.get_view_matrix() * glm::mat4 {
+    shaders[Shader::Types::SkyBox].activate();
+    shaders[Shader::Types::SkyBox].set_uniform_int("tex", 0);
+    shaders[Shader::Types::SkyBox].set_uniform_mat4("uProjectionMatrix", camera.get_projection_matrix());
+    shaders[Shader::Types::SkyBox].set_uniform_mat4("uModelViewMatrix", camera.get_view_matrix() * glm::mat4 {
         {1, 0, 0, 0},
         {0, 1, 0, 0},
         {0, 0, 1, 0},
@@ -228,9 +243,9 @@ void RenderManager::render_aabb()
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glDisable(GL_CULL_FACE);
 
-    aabb_shader.activate();
-    aabb_shader.set_uniform_mat4("ProjectionMatrix", camera.get_projection_matrix());
-    aabb_shader.set_uniform_vec4("Color", glm::vec4(1, 0, 0, 1));
+    shaders[Shader::Types::BoundingBox].activate();
+    shaders[Shader::Types::BoundingBox].set_uniform_mat4("ProjectionMatrix", camera.get_projection_matrix());
+    shaders[Shader::Types::BoundingBox].set_uniform_vec4("Color", glm::vec4(1, 0, 0, 1));
 
     for (auto &object : objects)
     {
@@ -241,7 +256,7 @@ void RenderManager::render_aabb()
             {      0,       0, aabb[2], 0},
             {      0,       0,       0, 1},
         };
-        aabb_shader.set_uniform_mat4("ModelViewMatrix", camera.get_view_matrix() * object.get_model() * scale);
+        shaders[Shader::Types::BoundingBox].set_uniform_mat4("ModelViewMatrix", camera.get_view_matrix() * object.get_model() * scale);
         ResourceManager::get_instance().get_mesh(aabb_mesh_id).render();
     }
 }

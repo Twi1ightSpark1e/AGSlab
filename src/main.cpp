@@ -64,6 +64,7 @@ void reshape(int w,int h)
     // установить новую область просмотра, равную всей области окна
     glViewport(0,0,(GLsizei)w, (GLsizei)h);
     scene.get_camera().set_projection_matrix(glm::radians(45.0), float(w) / float(h), .1, 1000);
+    RenderManager::get_instance().get_framebuffer_object().init(w, h, 1);
 }
 
 // функция вызывается когда процессор простаивает, т.е. максимально часто

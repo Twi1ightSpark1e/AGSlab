@@ -53,6 +53,9 @@ void Scene::init(const fs::path &base_path)
     auto xml_shader_light = xml_shaders.find_child_by_attribute("id", "light");
     auto xml_shader_skybox = xml_shaders.find_child_by_attribute("id", "skybox");
     auto xml_shader_aabb = xml_shaders.find_child_by_attribute("id", "bounding_box");
+    auto xml_shader_simple_pp = xml_shaders.find_child_by_attribute("id", "simple_pp");
+    auto xml_shader_sepia_pp = xml_shaders.find_child_by_attribute("id", "sepia_pp");
+    auto xml_shader_grey_pp = xml_shaders.find_child_by_attribute("id", "grey_pp");
     ShaderPaths light_shader = {
         base_path / xml_shader_light.attribute("vertex-path").value(),
         base_path / xml_shader_light.attribute("fragment-path").value()
@@ -62,8 +65,24 @@ void Scene::init(const fs::path &base_path)
     }, aabb_shader = {
         base_path / xml_shader_aabb.attribute("vertex-path").value(),
         base_path / xml_shader_aabb.attribute("fragment-path").value(),
+    }, simple_pp_shader = {
+        base_path / xml_shader_simple_pp.attribute("vertex-path").value(),
+        base_path / xml_shader_simple_pp.attribute("fragment-path").value(),
+    }, sepia_pp_shader = {
+        base_path / xml_shader_sepia_pp.attribute("vertex-path").value(),
+        base_path / xml_shader_sepia_pp.attribute("fragment-path").value(),
+    }, grey_pp_shader = {
+        base_path / xml_shader_grey_pp.attribute("vertex-path").value(),
+        base_path / xml_shader_grey_pp.attribute("fragment-path").value(),
     };
-    RenderManager::get_instance().init(light_shader, skybox_shader, aabb_shader);
+    RenderManager::get_instance().init({
+        { Shader::Types::BoundingBox, aabb_shader },
+        { Shader::Types::DirectLight, light_shader },
+        { Shader::Types::SkyBox, skybox_shader },
+        { Shader::Types::SimplePostProcessing, simple_pp_shader},
+        { Shader::Types::SepiaPostProcessing, sepia_pp_shader},
+        { Shader::Types::GreyPostProcessing, grey_pp_shader}
+    });
     RenderManager::get_instance().set_aabb_mesh_path(base_path / "meshes" / "box.obj");
 
     auto xml_skybox = xml_resources.child("SkyBox");

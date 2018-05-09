@@ -26,6 +26,7 @@ set(SOURCES
     "src/Texture.cpp"
     "src/SkyBox.cpp"
     "src/NetProtocol.cpp"
+    "src/FramebufferObject.cpp"
     )
 
 find_package(OpenGL REQUIRED)

@@ -5,6 +5,7 @@
 #include <cgraphics/Light.hpp>
 #include <cgraphics/GraphicObject.hpp>
 #include <cgraphics/SkyBox.hpp>
+#include <cgraphics/FramebufferObject.hpp>
 
 #include <map>
 #include <vector>
@@ -44,10 +45,14 @@ private:
         glm::vec4 mSpecular;
     };
 
-    Shader light_shader, skybox_shader, aabb_shader;
+    std::array<Shader, Shader::Types::Amount> shaders;
     Camera camera;
     Light  light;
     SkyBox skybox;
+
+    FramebufferObject fbo;
+    Mesh rectangle;
+
     std::vector<GraphicObject> objects;
     std::map<int, ObjectState> object_states;
     GLuint per_scene_ubo_index;
@@ -80,7 +85,7 @@ public:
     }
     unsigned long get_objects_count() const;
 
-    void init(const ShaderPaths& light, const ShaderPaths& skybox, const ShaderPaths& aabb);
+    void init(std::map<Shader::Types, ShaderPaths> paths);
     void start();
 
     void set_camera(const Camera &camera);
@@ -92,6 +97,8 @@ public:
 
     void set_aabb_mesh_path(const std::experimental::filesystem::path &path);
     void toggle_aabb_render_mode();
+
+    FramebufferObject& get_framebuffer_object();
 private:
     void render_skybox();
     void render_objects();

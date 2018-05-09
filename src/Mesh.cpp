@@ -98,6 +98,30 @@ void Mesh::load(const fs::path &file)
     glBindVertexArray(0);
 }
 
+void Mesh::load_rectangle()
+{
+    static std::array<GLfloat, 6*2> vertices {
+        -1,  1,
+        -1, -1,
+         1,  1,
+         1,  1,
+        -1, -1,
+         1, -1
+    };
+
+    glGenBuffers(1, &vbo_index);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_index);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    glGenVertexArrays(1, &vao_index);
+    glBindVertexArray(vao_index);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_index);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_TRUE, 0, 0);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+
+    vertex_count = 6;
+}
+
 void Mesh::render() const
 {
     // начинаем работу с созданным VAO

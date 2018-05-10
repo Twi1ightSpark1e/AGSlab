@@ -5,6 +5,7 @@
 #include <cgraphics/RenderManager.hpp>
 #include <cgraphics/Texture.hpp>
 
+#include <array>
 #include <iostream>
 #include <tuple>
 
@@ -12,6 +13,28 @@
 #include <ohf/tcp/Socket.hpp>
 
 namespace fs = std::experimental::filesystem;
+
+namespace Side
+{
+    constexpr unsigned int 
+        None  = 0,
+        Left  = 1,
+        Up    = 1 << 1,
+        Right = 1 << 2,
+        Down  = 1 << 3,
+        Front = 1 << 4,
+        Back  = 1 << 5;
+
+    bool has_flag(unsigned int value, unsigned int flag)
+    {
+        return (value & flag) == flag;
+    }
+
+    bool both_has_flag(unsigned int left, unsigned int right, unsigned int flag)
+    {
+        return has_flag(left, flag) && has_flag(right, flag);
+    }
+}
 
 void Scene::init(const fs::path &base_path)
 {
@@ -182,7 +205,7 @@ void Scene::frustum_culling(std::vector<std::reference_wrapper<GraphicObject>> &
 
         auto pvm = camera.get_projection_matrix() * camera.get_view_matrix() * object.get_model();
         auto aabb = object.get_aabb();
-        std::vector<glm::vec4> aabb_vertices = {
+        std::array<glm::vec4, 8> aabb_vertices = {
             glm::vec4(+aabb[0], +aabb[1], +aabb[2], 1.0),
             glm::vec4(+aabb[0], +aabb[1], -aabb[2], 1.0),
             glm::vec4(+aabb[0], -aabb[1], +aabb[2], 1.0),
@@ -192,16 +215,38 @@ void Scene::frustum_culling(std::vector<std::reference_wrapper<GraphicObject>> &
             glm::vec4(-aabb[0], -aabb[1], +aabb[2], 1.0),
             glm::vec4(-aabb[0], -aabb[1], -aabb[2], 1.0)
         };
+        std::array<int, 8> sides;
+        sides.fill(0);
         bool flag = false;
+        int side_index = -1;
         for (auto &aabb_vertex : aabb_vertices)
         {
+            side_index++;
             aabb_vertex = pvm * aabb_vertex;
             aabb_vertex /= aabb_vertex.w;
-            if (((aabb_vertex.x < 1) && (aabb_vertex.x > -1)) &&
-                ((aabb_vertex.y < 1) && (aabb_vertex.y > -1)) &&
-                ((aabb_vertex.z < 1) && (aabb_vertex.z > -1)))
+
+            sides[side_index] |= (aabb_vertex.x >  1) ? Side::Right : Side::None;
+            sides[side_index] |= (aabb_vertex.x < -1) ? Side::Left  : Side::None;
+            sides[side_index] |= (aabb_vertex.y >  1) ? Side::Up    : Side::None;
+            sides[side_index] |= (aabb_vertex.y < -1) ? Side::Down  : Side::None;
+            sides[side_index] |= (aabb_vertex.z >  1) ? Side::Front : Side::None;
+            sides[side_index] |= (aabb_vertex.z < -1) ? Side::Back  : Side::None;
+            if (sides[side_index] == Side::None)
             {
                 flag = true;
+                break;
+            }
+            for (int i = 0; (i < side_index) && !flag; i++)
+            {
+                flag = !(Side::both_has_flag(sides[side_index], sides[i], Side::Right)
+                    || Side::both_has_flag(sides[side_index], sides[i], Side::Left)
+                    || Side::both_has_flag(sides[side_index], sides[i], Side::Up)
+                    || Side::both_has_flag(sides[side_index], sides[i], Side::Down)
+                    || Side::both_has_flag(sides[side_index], sides[i], Side::Front)
+                    || Side::both_has_flag(sides[side_index], sides[i], Side::Back));
+            }
+            if (flag)
+            {
                 break;
             }
         }

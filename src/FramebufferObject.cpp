@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-int FramebufferObject::FramebufferObject::width, FramebufferObject::FramebufferObject::height;
+int FramebufferObject::width, FramebufferObject::height;
 
 void FramebufferObject::init(int width, int height, int samples)
 {

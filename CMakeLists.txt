@@ -59,6 +59,15 @@ target_link_libraries(cgraphics
     ${GLEW_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
     "pugixml"
-    "stdc++fs"
     "libwire"
 )
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    target_link_libraries(cgraphics
+        "stdc++fs"
+    )
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_link_libraries(cgraphics
+        "c++fs"
+    )
+endif()

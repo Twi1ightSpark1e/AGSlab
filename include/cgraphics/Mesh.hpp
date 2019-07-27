@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 
 #include <array>
-#include <experimental/filesystem>
+#include <filesystem>
 
 #pragma pack(push, 0)
 struct Vertex
@@ -20,12 +20,12 @@ private:
     int    vertex_count;
 public:
     Mesh() = default;
-    explicit Mesh(const std::experimental::filesystem::path &file)
+    explicit Mesh(const std::filesystem::path &file)
     {
         load(file);
     }
 
-    void load(const std::experimental::filesystem::path &file);
+    void load(const std::filesystem::path &file);
     void load_rectangle();
     void render() const;
 };

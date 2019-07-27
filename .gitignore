@@ -1,3 +1,4 @@
 build/
 .vscode/
 camera_position.txt
+compile_commands.json

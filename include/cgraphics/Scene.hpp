@@ -7,13 +7,11 @@
 #include <cgraphics/SkyBox.hpp>
 #include <cgraphics/NetProtocol.hpp>
 
-#include <experimental/filesystem>
+#include <filesystem>
 #include <string>
 #include <map>
 
 #include <pugixml.hpp>
-
-#include <ohf/tcp/Socket.hpp>
 
 class Scene
 {
@@ -41,7 +39,7 @@ private:
     SkyBox skybox;
     std::map<int, GraphicObject> objects;
     pugi::xml_document xml;
-    std::experimental::filesystem::path base_path;
+    std::filesystem::path base_path;
     NetProtocol protocol;
     bool culling_enabled = true, lod_enabled = true;
 
@@ -53,9 +51,9 @@ private:
 public:
     enum Optimization { None, Frustum, FrustumLoD };
 
-    Scene() noexcept {} // NOLINT cause linter suggests replace {} with default, but it's not valid
+    Scene() noexcept {}
 
-    void init(const std::experimental::filesystem::path &base_path);
+    void init(const std::filesystem::path &base_path);
     void simulate(double seconds);
     void draw();
 

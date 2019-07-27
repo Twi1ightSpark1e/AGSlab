@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 ResourceManager &ResourceManager::get_instance()
 {

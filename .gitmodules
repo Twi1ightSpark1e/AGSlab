@@ -1,0 +1,3 @@
+[submodule "thirdparty/wire"]
+	path = thirdparty/wire
+	url = https://github.com/foxcpp/wire.git

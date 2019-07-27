@@ -9,10 +9,7 @@
 #include <iostream>
 #include <tuple>
 
-#include <ohf/Exception.hpp>
-#include <ohf/tcp/Socket.hpp>
-
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 namespace Side
 {
@@ -49,7 +46,7 @@ void Scene::init(const fs::path &base_path)
     auto xml_server = xml_resources.child("Server");
     auto xml_server_ip = xml_server.child("IP").attribute("value").value();
     auto xml_server_port = std::stoi(xml_server.child("Port").attribute("value").value());
-    
+
     protocol.connect(xml_server_ip, xml_server_port);
     std::cout << "Welcome message: " << protocol.get_welcome_message() << std::endl;
 

@@ -7,13 +7,13 @@
 #include <cgraphics/Texture.hpp>
 
 #include <array>
-#include <experimental/filesystem>
+#include <filesystem>
 
 class GraphicObject
 {
 private:
     int id;
-    std::experimental::filesystem::path mesh, texture;
+    std::filesystem::path mesh, texture;
     Material material;
     glm::mat4 model;
     std::array<float, 3> aabb;
@@ -27,11 +27,11 @@ public:
     void set_id(const int &id);
     int get_id() const;
 
-    void set_mesh(const std::experimental::filesystem::path &mesh);
-    std::experimental::filesystem::path get_mesh() const;
+    void set_mesh(const std::filesystem::path &mesh);
+    std::filesystem::path get_mesh() const;
 
-    void set_texture(const std::experimental::filesystem::path &texture);
-    std::experimental::filesystem::path get_texture() const;
+    void set_texture(const std::filesystem::path &texture);
+    std::filesystem::path get_texture() const;
 
     void set_material(const Material &material);
     Material get_material() const;

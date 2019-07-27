@@ -7,7 +7,7 @@
 
 #include <IL/ilu.h>
 
-#include <experimental/filesystem>
+#include <filesystem>
 #include <vector>
 
 class SkyBox
@@ -20,18 +20,18 @@ private:
     };
 
     GLuint texture_id;
-    std::experimental::filesystem::path mesh;
+    std::filesystem::path mesh;
 
-    TextureInfo load_image(const std::experimental::filesystem::path &path);
-    void load_texture(const int &target, const std::experimental::filesystem::path &path);
+    TextureInfo load_image(const std::filesystem::path &path);
+    void load_texture(const int &target, const std::filesystem::path &path);
 public:
     SkyBox() = default;
-    SkyBox(const std::experimental::filesystem::path &base_path, const std::string &extension) noexcept
+    SkyBox(const std::filesystem::path &base_path, const std::string &extension) noexcept
     {
         load(base_path, extension);
     }
 
-    void load(const std::experimental::filesystem::path &base_path, const std::string &extension) noexcept;
+    void load(const std::filesystem::path &base_path, const std::string &extension) noexcept;
 
     void render(GLenum texture_unit) noexcept;
 };

@@ -2,7 +2,7 @@
 
 #include <cgraphics/GraphicObject.hpp>
 
-#include <ohf/tcp/Socket.hpp>
+#include <libwire/tcp.hpp>
 
 #include <glm/glm.hpp>
 
@@ -42,7 +42,7 @@ private:
     };
     #pragma pack(pop)
 
-    ohf::tcp::Socket sock;
+    libwire::tcp::socket sock;
     unsigned short transaction_id;
 
     std::vector<GameObjectDescription> nearby_objects;

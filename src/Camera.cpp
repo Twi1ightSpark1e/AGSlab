@@ -6,7 +6,7 @@
 #include <fstream>
 #include <iostream>
 
-Camera::Camera() noexcept : 
+Camera::Camera() noexcept :
     center(0, 0, 0),
     up(0, 1, 0)
 {

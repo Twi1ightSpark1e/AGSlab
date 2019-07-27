@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 void Texture::load(const fs::path &path, bool flip)
 {

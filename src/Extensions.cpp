@@ -5,9 +5,9 @@
 #include <iostream>
 #include <sstream>
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
-std::vector<std::string> Extensions::read_file(const std::experimental::filesystem::path &file)
+std::vector<std::string> Extensions::read_file(const fs::path &file)
 {
     std::vector<std::string> temp;
     std::ifstream txt(file);

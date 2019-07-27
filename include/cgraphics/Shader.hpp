@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 
-#include <experimental/filesystem>
+#include <filesystem>
 #include <map>
 #include <vector>
 
@@ -38,9 +38,9 @@ public:
 
     GLuint get_program() const;
     // загрузить вершинный шейдер
-    void load_vertex_shader(const std::experimental::filesystem::path &file, bool debug = true);
+    void load_vertex_shader(const std::filesystem::path &file, bool debug = true);
     // загрузить фрагментный шейдер
-    void load_fragment_shader(const std::experimental::filesystem::path &file, bool debug = true);
+    void load_fragment_shader(const std::filesystem::path &file, bool debug = true);
     // слинковать шейдерную программу
     void link(bool debug = true);
 

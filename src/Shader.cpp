@@ -51,7 +51,7 @@ void Shader::load_shader(GLuint &id, GLenum type, const std::vector<std::string>
     delete[] lengths;
 }
 
-void Shader::load_vertex_shader(const std::experimental::filesystem::path &file, bool debug)
+void Shader::load_vertex_shader(const std::filesystem::path &file, bool debug)
 {
     if (debug)
     {
@@ -61,7 +61,7 @@ void Shader::load_vertex_shader(const std::experimental::filesystem::path &file,
     load_shader(vsh, GL_VERTEX_SHADER, shader, debug);
 }
 
-void Shader::load_fragment_shader(const std::experimental::filesystem::path &file, bool debug)
+void Shader::load_fragment_shader(const std::filesystem::path &file, bool debug)
 {
     if (debug)
     {

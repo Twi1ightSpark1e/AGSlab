@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <chrono>
 #include <csignal>
-#include <experimental/filesystem>
+#include <filesystem>
 #include <iostream>
 
 #include <cgraphics/Extensions.hpp>
@@ -19,7 +19,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 // сцена
 Scene scene;

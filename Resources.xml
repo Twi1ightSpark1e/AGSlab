@@ -2,7 +2,7 @@
 <Resources>
 
   <Server>
-    <IP value="127.0.0.1" />
+    <IP value="10.0.1.76" />
     <Port value="27000" />
   </Server>
   

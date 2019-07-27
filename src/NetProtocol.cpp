@@ -1,6 +1,6 @@
 #include <cgraphics/NetProtocol.hpp>
 
-#include <ohf/Exception.hpp>
+#include <libwire/memory_view.hpp>
 
 #include <cstring>
 #include <iostream>
@@ -30,7 +30,7 @@ void NetProtocol::wait_for_bytes(unsigned int amount)
         #ifdef _WIN32
             ioctlsocket(sock.fd(), FIONREAD, &bytes_to_read);
         #else
-            ioctl(sock.fd(), FIONREAD, &bytes_to_read);
+            ioctl(sock.native_handle(), FIONREAD, &bytes_to_read);
         #endif
     }
 }
@@ -40,23 +40,23 @@ void NetProtocol::connect(const std::string &address, unsigned short port) noexc
     try
     {
         std::cout << "Trying connect to " << address << ":" << port << std::endl;
-        sock.connect(ohf::InetAddress(address), port);
+        sock.connect({ {address}, port });
         std::cout << "Connected successfully!" << std::endl;
         transaction_id = 0;
     }
-    catch (ohf::Exception &exc)
+    catch (std::system_error &exc)
     {
         std::cout << "Something went wrong!" << std::endl;
-        std::cout << exc.message() << std::endl;
+        std::cout << exc.what() << std::endl;
     }
 }
 
 std::string NetProtocol::get_welcome_message()
 {
-    if (!sock.isValid())
+    if (!sock.is_open())
     {
         std::cout << "Cannot send welcome message - socket is closed" << std::endl;
-        return std::string();
+        return {};
     }
     NetworkHeader request = {
         transaction_id++, // transaction_id
@@ -67,32 +67,33 @@ std::string NetProtocol::get_welcome_message()
     };
     try
     {
-        sock.send(reinterpret_cast<char*>(&request), sizeof(request));
-        wait_for_bytes(sizeof(request));
-        sock.receive(reinterpret_cast<char*>(&request), sizeof(request));
+        libwire::memory_view request_buffer(&request, sizeof(request));
+        sock.write(request_buffer);
+        wait_for_bytes(request_buffer.size());
+        sock.read(request_buffer.size(), request_buffer);
         if (request.data_length > 1)
         {
             wait_for_bytes(request.data_length - 1);
-            auto str = sock.receiveString(request.data_length - 1);
-            str = str.substr(0, str.find('\0'));
-            return str;
+            auto buf = sock.read(request.data_length - 1);
+            std::string str(reinterpret_cast<char*>(buf.data()), buf.size());
+            return { str.substr(0, str.find('\0')) };
         }
-        std::cout << "Cannot send welcome message - it is too short!" << std::endl;
+        std::cout << "Cannot receive welcome message - it is too short!" << std::endl;
     }
-    catch (ohf::Exception &exc)
+    catch (std::system_error &exc)
     {
         std::cout << "Something went wrong!" << std::endl;
-        std::cout << exc.message() << std::endl;
+        std::cout << exc.what() << std::endl;
     }
-    return std::string();
+    return {};
 }
 
 std::vector<NetProtocol::GameObjectDescription> NetProtocol::get_demo_scene()
 {
-    if (!sock.isValid())
+    if (!sock.is_open())
     {
         std::cout << "Cannot get demo scene - socket is closed" << std::endl;
-        
+        return {};
     }
     NetworkHeader request = {
         transaction_id++, // transaction_id
@@ -104,19 +105,22 @@ std::vector<NetProtocol::GameObjectDescription> NetProtocol::get_demo_scene()
     std::vector<GameObjectDescription> out;
     try
     {
-        sock.send(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
-        wait_for_bytes(sizeof(NetworkHeader));
-        sock.receive(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
+        libwire::memory_view request_buffer(&request, sizeof(request));
+        sock.write(request_buffer);
+        wait_for_bytes(request_buffer.size());
+        sock.read(request_buffer.size(), request_buffer);
         if (request.data_length > 1)
         {
             unsigned int count;
+            libwire::memory_view count_buffer(&count, sizeof(count));
             wait_for_bytes(sizeof(int));
-            sock.receive(reinterpret_cast<char*>(&count), sizeof(int));
+            sock.read(count_buffer.size(), count_buffer);
             GameObjectDescription descr;
+            libwire::memory_view descr_buffer(&descr, sizeof(descr));
             for (unsigned int i = 0; i < count; i++)
             {
-                wait_for_bytes(sizeof(GameObjectDescription));
-                sock.receive(reinterpret_cast<char*>(&descr), sizeof(GameObjectDescription));
+                wait_for_bytes(descr_buffer.size());
+                sock.read(descr_buffer.size(), descr_buffer);
                 out.push_back(descr);
             }
         }
@@ -125,10 +129,10 @@ std::vector<NetProtocol::GameObjectDescription> NetProtocol::get_demo_scene()
             std::cout << "Cannot get demo scene - not enough information from server!" << std::endl;
         }
     }
-    catch (ohf::Exception &exc)
+    catch (std::system_error &exc)
     {
         std::cout << "Something went wrong!" << std::endl;
-        std::cout << exc.message() << std::endl;
+        std::cout << exc.what() << std::endl;
     }
     return out;
 }
@@ -139,7 +143,7 @@ void NetProtocol::nearby_objects_polling()
 
     while (!stop_thread)
     {
-        if (!sock.isValid())
+        if (!sock.is_open())
         {
             std::cout << "Cannot get nearby objects - socket is closed" << std::endl;
             std::this_thread::sleep_for(500ms);
@@ -165,31 +169,38 @@ void NetProtocol::nearby_objects_polling()
         std::vector<GameObjectDescription> out;
         try
         {
-            sock.send(reinterpret_cast<char*>(&request), sizeof(SecondNetworkHeader));
+            libwire::memory_view request_buffer(&request, sizeof(request));
+            sock.write(request_buffer);
             wait_for_bytes(sizeof(NetworkHeader));
-            sock.receive(reinterpret_cast<char*>(&request), sizeof(NetworkHeader));
+            sock.read(sizeof(NetworkHeader), request_buffer);
             if (request.data_length > 1)
             {
                 unsigned int count;
-                wait_for_bytes(sizeof(int));
-                sock.receive(reinterpret_cast<char*>(&count), sizeof(int));
+                libwire::memory_view count_buffer(&count, sizeof(count));
+                wait_for_bytes(count_buffer.size());
+                sock.read(count_buffer.size(), count_buffer);
                 GameObjectDescription descr;
+                libwire::memory_view descr_buffer(&descr, sizeof(descr));
                 for (unsigned int i = 0; i < count; i++)
                 {
-                    wait_for_bytes(sizeof(GameObjectDescription));
-                    sock.receive(reinterpret_cast<char*>(&descr), sizeof(GameObjectDescription));
+                    wait_for_bytes(descr_buffer.size());
+                    sock.read(descr_buffer.size(), descr_buffer);
                     out.push_back(descr);
                 }
             }
             else
             {
                 std::cout << "Cannot get nearby objects - not enough information from server!" << std::endl;
+                std::this_thread::sleep_for(500ms);
+                continue;
             }
         }
-        catch (ohf::Exception &exc)
+        catch (std::system_error &exc)
         {
             std::cout << "Something went wrong!" << std::endl;
-            std::cout << exc.message() << std::endl;
+            std::cout << exc.what() << std::endl;
+            std::this_thread::sleep_for(500ms);
+            continue;
         }
 
         result_synchronizer.lock();

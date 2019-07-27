@@ -9,13 +9,13 @@
 
 #include <map>
 #include <vector>
-#include <experimental/filesystem>
+#include <filesystem>
 
 #include <glm/glm.hpp>
 
 struct ShaderPaths
 {
-    std::experimental::filesystem::path vertex, fragment;
+    std::filesystem::path vertex, fragment;
 };
 
 class RenderManager
@@ -77,7 +77,7 @@ private:
     GLuint per_scene_ubo_index;
     static long update_count;
 
-    std::experimental::filesystem::path aabb_mesh_id;
+    std::filesystem::path aabb_mesh_id;
     bool aabb_render_mode = false;
 
     RenderManager() = default;
@@ -114,7 +114,7 @@ public:
 
     void finish();
 
-    void set_aabb_mesh_path(const std::experimental::filesystem::path &path);
+    void set_aabb_mesh_path(const std::filesystem::path &path);
     void toggle_aabb_render_mode();
 
     void next_multisampling_mode();

@@ -5,7 +5,7 @@
 #include <string>
 #include <regex>
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 void Mesh::load(const fs::path &file)
 {

@@ -1,19 +1,26 @@
-## Лабораторные работы по АГС, 6 семестр
-### Требования
-* Дистрибутив GNU/Linux
-* Компилятор с поддержкой C++17
+# AGS laboratory work, 6 semester
+## Requirements
+* GNU/Linux distribution
+* Compiler that supports C++17
 * CMake
 * libGL
 * FreeGLUT
 * GLEW
 * GLM
 * DevIL
-* OkHttp fork ( https://github.com/Good-Pudge/okhttp-fork )
 
-### Как собрать
+## Build
 ```
+$ git clone --recursive https://github.com/Twi1ightSpark1e/AGSlab.git
+$ cd AGSlab
 $ mkdir build
 $ cd build
-$ cmake ..
+$ cmake .. -DCMAKE_BUILD_TYPE=Release
 $ make
 ```
+
+#### With Clang instead of GCC
+All the same as in previous step, but slightly different `cmake` command:
+
+`$ env CC=$(which clang) CXX=$(which clang++) CXXFLAGS="-stdlib=libc++" cmake .. -DCMAKE_BUILD_TYPE=Release`
+

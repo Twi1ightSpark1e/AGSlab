@@ -4,10 +4,11 @@
 * Compiler that supports C++17
 * CMake
 * libGL
-* FreeGLUT
+* GLFW
 * GLEW
 * GLM
 * DevIL
+* Boost
 
 ## Build
 ```

@@ -1,7 +1,5 @@
 #include <cgraphics/NetProtocol.hpp>
 
-#include <libwire/memory_view.hpp>
-
 #include <cstring>
 #include <iostream>
 
@@ -10,6 +8,8 @@
 #else
 #   include <sys/ioctl.h>
 #endif
+
+using namespace boost::asio;
 
 NetProtocol::~NetProtocol()
 {
@@ -37,18 +37,18 @@ void NetProtocol::wait_for_bytes(unsigned int amount)
 
 void NetProtocol::connect(const std::string &address, unsigned short port) noexcept
 {
-    try
-    {
-        std::cout << "Trying connect to " << address << ":" << port << std::endl;
-        sock.connect({ {address}, port });
-        std::cout << "Connected successfully!" << std::endl;
-        transaction_id = 0;
-    }
-    catch (std::system_error &exc)
-    {
+    std::cout << "Trying connect to " << address << ":" << port << std::endl;
+
+    boost::system::error_code ec;
+    sock.connect(ip::tcp::endpoint(ip::address::from_string(address), port), ec);
+    if (ec) {
         std::cout << "Something went wrong!" << std::endl;
-        std::cout << exc.what() << std::endl;
+        std::cout << ec.message() << std::endl;
+        return;
     }
+
+    std::cout << "Connected successfully!" << std::endl;
+    transaction_id = 0;
 }
 
 std::string NetProtocol::get_welcome_message()
@@ -65,22 +65,26 @@ std::string NetProtocol::get_welcome_message()
         1, // data_length
         0  // function_id
     };
+    auto buf = boost::asio::buffer(&request, sizeof(request));
+
     try
     {
-        libwire::memory_view request_buffer(&request, sizeof(request));
-        sock.write(request_buffer);
-        wait_for_bytes(request_buffer.size());
-        sock.read(request_buffer.size(), request_buffer);
-        if (request.data_length > 1)
-        {
-            wait_for_bytes(request.data_length - 1);
-            auto buf = sock.read(request.data_length - 1);
-            std::string str(reinterpret_cast<char*>(buf.data()), buf.size());
-            return { str.substr(0, str.find('\0')) };
+        sock.write_some(buf);
+        wait_for_bytes(buf.size());
+        sock.read_some(buf);
+
+        if (request.data_length < 1) {
+            std::cout << "Cannot receive welcome message - it is too short!" << std::endl;
+            return {};
         }
-        std::cout << "Cannot receive welcome message - it is too short!" << std::endl;
+
+        char *message = new char[request.data_length - 1];
+        auto received = sock.receive(buffer(message, request.data_length - 1));
+        std::string str(message, received);
+        delete[] message;
+        return { str.substr(0, str.find('\0')) };
     }
-    catch (std::system_error &exc)
+    catch (const std::exception &exc)
     {
         std::cout << "Something went wrong!" << std::endl;
         std::cout << exc.what() << std::endl;
@@ -102,31 +106,31 @@ std::vector<NetProtocol::GameObjectDescription> NetProtocol::get_demo_scene()
         1, // data_length
         1  // function_id
     };
+    auto request_buf = boost::asio::buffer(&request, sizeof(request));
     std::vector<GameObjectDescription> out;
     try
     {
-        libwire::memory_view request_buffer(&request, sizeof(request));
-        sock.write(request_buffer);
-        wait_for_bytes(request_buffer.size());
-        sock.read(request_buffer.size(), request_buffer);
-        if (request.data_length > 1)
-        {
-            unsigned int count;
-            libwire::memory_view count_buffer(&count, sizeof(count));
-            wait_for_bytes(sizeof(int));
-            sock.read(count_buffer.size(), count_buffer);
-            GameObjectDescription descr;
-            libwire::memory_view descr_buffer(&descr, sizeof(descr));
-            for (unsigned int i = 0; i < count; i++)
-            {
-                wait_for_bytes(descr_buffer.size());
-                sock.read(descr_buffer.size(), descr_buffer);
-                out.push_back(descr);
-            }
-        }
-        else
-        {
+        sock.write_some(request_buf);
+        wait_for_bytes(request_buf.size());
+        sock.read_some(request_buf);
+        if (request.data_length < 1) {
             std::cout << "Cannot get demo scene - not enough information from server!" << std::endl;
+            return out;
+        }
+
+        unsigned int count;
+        auto count_buf = boost::asio::buffer(&count, sizeof(count));
+        wait_for_bytes(count_buf.size());
+        sock.read_some(count_buf);
+        out.reserve(count);
+
+        GameObjectDescription descr;
+        auto descr_buf = boost::asio::buffer(&descr, sizeof(descr));
+
+        for (auto i = 0; i < count; i++) {
+            wait_for_bytes(descr_buf.size());
+            sock.read_some(descr_buf);
+            out.push_back(std::move(descr));
         }
     }
     catch (std::system_error &exc)
@@ -165,34 +169,36 @@ void NetProtocol::nearby_objects_polling()
             last_radius            // radius
         };
         parameters_synchronizer.unlock();
+        auto request_buf = boost::asio::buffer(&request, sizeof(request));
+        NetworkHeader answer;
+        auto answer_buf = boost::asio::buffer(&answer, sizeof(answer));
 
         std::vector<GameObjectDescription> out;
         try
         {
-            libwire::memory_view request_buffer(&request, sizeof(request));
-            sock.write(request_buffer);
-            wait_for_bytes(sizeof(NetworkHeader));
-            sock.read(sizeof(NetworkHeader), request_buffer);
-            if (request.data_length > 1)
-            {
-                unsigned int count;
-                libwire::memory_view count_buffer(&count, sizeof(count));
-                wait_for_bytes(count_buffer.size());
-                sock.read(count_buffer.size(), count_buffer);
-                GameObjectDescription descr;
-                libwire::memory_view descr_buffer(&descr, sizeof(descr));
-                for (unsigned int i = 0; i < count; i++)
-                {
-                    wait_for_bytes(descr_buffer.size());
-                    sock.read(descr_buffer.size(), descr_buffer);
-                    out.push_back(descr);
-                }
-            }
-            else
-            {
+            sock.write_some(request_buf);
+            wait_for_bytes(answer_buf.size());
+            sock.receive(answer_buf);
+            if (answer.data_length < 1) {
                 std::cout << "Cannot get nearby objects - not enough information from server!" << std::endl;
                 std::this_thread::sleep_for(500ms);
                 continue;
+            }
+
+
+            std::uint32_t count;
+            auto count_buf = boost::asio::buffer(&count, sizeof(count));
+            wait_for_bytes(count_buf.size());
+            sock.receive(count_buf);
+            out.reserve(count);
+
+            GameObjectDescription descr;
+            auto descr_buf = boost::asio::buffer(&descr, sizeof(descr));
+
+            for (auto i = 0; i < count; i++) {
+                wait_for_bytes(descr_buf.size());
+                sock.receive(descr_buf);
+                out.push_back(std::move(descr));
             }
         }
         catch (std::system_error &exc)

@@ -2,7 +2,7 @@
 <Resources>
 
   <Server>
-    <IP value="10.0.1.76" />
+    <IP value="192.168.0.55" />
     <Port value="27000" />
   </Server>
   
@@ -19,7 +19,7 @@
 
   <SkyBox>
     <Basename prefix="textures/skybox/CloudyCrown" extension="png" />
-    <Type value="Evening" />
+    <Type value="Sunset" />
   </SkyBox>
 
   <Shaders>

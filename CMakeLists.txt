@@ -27,7 +27,7 @@ set(SOURCES
     "src/SkyBox.cpp"
     "src/NetProtocol.cpp"
     "src/FramebufferObject.cpp"
-    )
+)
 
 find_package(OpenGL REQUIRED)
 find_package(DevIL REQUIRED)
@@ -36,8 +36,7 @@ find_package(GLEW REQUIRED)
 find_package(GLM REQUIRED)
 find_package(PugiXML REQUIRED)
 find_package(Threads REQUIRED)
-
-add_subdirectory(thirdparty/wire)
+find_package(Boost REQUIRED)
 
 include_directories(
     ${OPENGL_INCLUDE_DIRS}
@@ -46,6 +45,7 @@ include_directories(
     ${GLEW_INCLUDE_DIRS}
     ${GLM_INCLUDE_DIRS}
     ${PUGIXML_INCLUDE_DIRS}
+    ${BOOST_INCLUDE_DIRS}
     "include"
 )
 
@@ -57,16 +57,16 @@ target_link_libraries(cgraphics
     ${ILU_LIBRARIES}
     ${GLUT_LIBRARIES}
     ${GLEW_LIBRARIES}
+    ${BOOST_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
     "pugixml"
-    "libwire"
 )
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     target_link_libraries(cgraphics
         "stdc++fs"
     )
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
     target_link_libraries(cgraphics
         "c++fs"
     )

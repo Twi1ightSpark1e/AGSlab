@@ -2,8 +2,7 @@
 
 #include <cgraphics/GraphicObject.hpp>
 
-#include <libwire/tcp.hpp>
-
+#include <boost/asio.hpp>
 #include <glm/glm.hpp>
 
 #include <array>
@@ -42,7 +41,8 @@ private:
     };
     #pragma pack(pop)
 
-    libwire::tcp::socket sock;
+    boost::asio::io_context io_context;
+    boost::asio::ip::tcp::socket sock;
     unsigned short transaction_id;
 
     std::vector<GameObjectDescription> nearby_objects;
@@ -55,8 +55,8 @@ private:
     void nearby_objects_polling();
     void wait_for_bytes(unsigned int amount);
 public:
-    NetProtocol() = default;
-    NetProtocol(const std::string &address, unsigned short port) noexcept
+    NetProtocol() : sock(io_context) {  };
+    NetProtocol(const std::string &address, unsigned short port) noexcept : sock(io_context)
     {
         connect(address, port);
     }

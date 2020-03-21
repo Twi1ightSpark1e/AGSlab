@@ -2,7 +2,7 @@
 
 #include <cgraphics/Camera.hpp>
 
-#include <GL/freeglut.h>
+#include <GLFW/glfw3.h>
 
 #include <functional>
 #include <map>
@@ -12,29 +12,26 @@ class InputManager
 private:
     typedef std::function<void()> handler_func_t;
     std::map<int, int> mouse = {
-        {GLUT_LEFT_BUTTON,   GLUT_UP},
-        {GLUT_MIDDLE_BUTTON, GLUT_UP},
-        {GLUT_RIGHT_BUTTON,  GLUT_UP}
+        { GLFW_MOUSE_BUTTON_LEFT,   GLFW_RELEASE },
+        { GLFW_MOUSE_BUTTON_MIDDLE, GLFW_RELEASE },
+        { GLFW_MOUSE_BUTTON_RIGHT,  GLFW_RELEASE }
     };
     std::map<int, int> arrows = {
-        {GLUT_KEY_LEFT,      GLUT_UP},
-        {GLUT_KEY_UP,        GLUT_UP},
-        {GLUT_KEY_RIGHT,     GLUT_UP},
-        {GLUT_KEY_DOWN,      GLUT_UP}
+        { GLFW_KEY_LEFT,      GLFW_RELEASE },
+        { GLFW_KEY_UP,        GLFW_RELEASE },
+        { GLFW_KEY_RIGHT,     GLFW_RELEASE },
+        { GLFW_KEY_DOWN,      GLFW_RELEASE }
     };
-    std::map<unsigned char, handler_func_t> events;
+    std::map<int, handler_func_t> events;
     Camera *camera;
 
     InputManager() = default;
     ~InputManager() = default;
 
-    static void motion_func(int x, int y);
-    static void mouse_func(int button, int state, int x, int y);
-    static void speckey_down_func(int key, int x, int y);
-    static void speckey_up_func(int key, int x, int y);
-    static void keyboard_down_func(unsigned char key, int x, int y);
-    // Вспомогательный метод
-    static void speckey(int key, int state);
+    static void motion_func(GLFWwindow*, double, double);
+    static void mouse_func(GLFWwindow*, int, int, int);
+    static void scroll_func(GLFWwindow*, double, double);
+    static void key_func(GLFWwindow*, int, int, int, int);
 public:
     InputManager(const InputManager&) = delete;
     InputManager(InputManager&&) = delete;
@@ -47,10 +44,10 @@ public:
     int get_arrow_state(int code) const;
     void set_arrow_state(int code, int value);
 
-    void set_key_handler(unsigned char key, handler_func_t handler);
-    void del_key_handler(unsigned char key);
+    void set_key_handler(int key, handler_func_t handler);
+    void del_key_handler(int key);
 
-    void set_handlers(Camera &camera);
+    void set_handlers(GLFWwindow*, Camera&);
 
     static InputManager& get_instance() noexcept;
 };

@@ -5,6 +5,8 @@
 #include <cgraphics/RenderManager.hpp>
 #include <cgraphics/Texture.hpp>
 
+#include <GLFW/glfw3.h>
+
 #include <array>
 #include <iostream>
 #include <tuple>
@@ -135,7 +137,7 @@ void Scene::simulate(double seconds)
     }
 }
 
-void Scene::draw()
+void Scene::draw(GLFWwindow *window)
 {
     static auto &render_manager = RenderManager::get_instance();
 
@@ -165,7 +167,7 @@ void Scene::draw()
         render_manager.add_to_queue(object.get());
     }
 
-    render_manager.finish();
+    render_manager.finish(window);
 }
 
 void Scene::level_of_detail(std::vector<std::reference_wrapper<GraphicObject>> &render_objects)
@@ -310,17 +312,17 @@ void Scene::create_graphic_object(const std::string &name, GraphicObject &out)
 
 void Scene::simulate_mouse()
 {
-    static int mouse_x, mouse_y, prev_button_state = GLUT_UP;
+    static int mouse_x, mouse_y, prev_button_state = GLFW_RELEASE;
 
-    if ((prev_button_state == GLUT_UP) && 
-        (InputManager::get_instance().get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_DOWN))
+    if ((prev_button_state == GLFW_RELEASE) &&
+        (InputManager::get_instance().get_mouse_state(GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS))
     {
         mouse_x = InputManager::get_instance().get_mouse_state('x');
         mouse_y = InputManager::get_instance().get_mouse_state('y');
-        prev_button_state = GLUT_DOWN;
+        prev_button_state = GLFW_PRESS;
     }
-    else if ((prev_button_state == GLUT_DOWN) && 
-        (InputManager::get_instance().get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_DOWN))
+    else if ((prev_button_state == GLFW_PRESS) &&
+        (InputManager::get_instance().get_mouse_state(GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS))
     {
         float new_x = InputManager::get_instance().get_mouse_state('x');
         float new_y = InputManager::get_instance().get_mouse_state('y');
@@ -328,9 +330,9 @@ void Scene::simulate_mouse()
         mouse_x = new_x;
         mouse_y = new_y;
     }
-    else if (InputManager::get_instance().get_mouse_state(GLUT_RIGHT_BUTTON) == GLUT_UP)
+    else if (InputManager::get_instance().get_mouse_state(GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE)
     {
-        prev_button_state = GLUT_UP;
+        prev_button_state = GLFW_RELEASE;
     }
 }
 
@@ -338,19 +340,19 @@ void Scene::simulate_keyboard(double delta_s)
 {
     static InputManager &input_manager = InputManager::get_instance();
 
-    if (input_manager.get_arrow_state(GLUT_KEY_LEFT) == GLUT_DOWN)
+    if (input_manager.get_arrow_state(GLFW_KEY_LEFT) == GLFW_PRESS)
     {
         camera.move_oxz(0, -delta_s);
     }
-    if (input_manager.get_arrow_state(GLUT_KEY_UP) == GLUT_DOWN)
+    if (input_manager.get_arrow_state(GLFW_KEY_UP) == GLFW_PRESS)
     {
         camera.move_oxz(delta_s, 0);
     }
-    if (input_manager.get_arrow_state(GLUT_KEY_RIGHT) == GLUT_DOWN)
+    if (input_manager.get_arrow_state(GLFW_KEY_RIGHT) == GLFW_PRESS)
     {
         camera.move_oxz(0, delta_s);
     }
-    if (input_manager.get_arrow_state(GLUT_KEY_DOWN) == GLUT_DOWN)
+    if (input_manager.get_arrow_state(GLFW_KEY_DOWN) == GLFW_PRESS)
     {
         camera.move_oxz(-delta_s, 0);
     }

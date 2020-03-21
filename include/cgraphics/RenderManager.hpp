@@ -112,7 +112,7 @@ public:
     void set_skybox(const SkyBox &skybox);
     void add_to_queue(GraphicObject object);
 
-    void finish();
+    void finish(GLFWwindow*);
 
     void set_aabb_mesh_path(const std::filesystem::path &path);
     void toggle_aabb_render_mode();

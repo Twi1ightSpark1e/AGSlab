@@ -13,6 +13,8 @@
 
 #include <pugixml.hpp>
 
+#include <GLFW/glfw3.h>
+
 class Scene
 {
 private:
@@ -55,7 +57,7 @@ public:
 
     void init(const std::filesystem::path &base_path);
     void simulate(double seconds);
-    void draw();
+    void draw(GLFWwindow*);
 
     Optimization get_enabled_optimizations() const;
     void next_optimization();

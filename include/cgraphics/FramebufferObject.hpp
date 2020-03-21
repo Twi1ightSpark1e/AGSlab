@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GL/freeglut.h>
+#include <GLFW/glfw3.h>
 
 class FramebufferObject
 {

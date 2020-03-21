@@ -10,7 +10,7 @@ int InputManager::get_mouse_state(int field) const
     {
         return it->second;
     }
-    return GLUT_UP;
+    return GLFW_RELEASE;
 }
 
 void InputManager::set_mouse_state(int field, int state)
@@ -25,7 +25,7 @@ int InputManager::get_arrow_state(int code) const
     {
         return it->second;
     }
-    return GLUT_UP;
+    return GLFW_RELEASE;
 }
 
 void InputManager::set_arrow_state(int code, int value)
@@ -39,88 +39,68 @@ InputManager& InputManager::get_instance() noexcept
     return instance;
 }
 
-void InputManager::set_handlers(Camera &camera)
+void InputManager::set_handlers(GLFWwindow *window, Camera &camera)
 {
     this->camera = &camera;
-    // функция, которая регистрирует перемещение мыши с зажатой кнопкой
-    glutMotionFunc(InputManager::motion_func);
-    // функция, которая вызывается каждый раз, когда нажимается кнопка мыши, или крутится колесо
-    glutMouseFunc(InputManager::mouse_func);
-    // функции обработки специальных кнопок
-    glutSpecialFunc(InputManager::speckey_down_func);
-    glutSpecialUpFunc(InputManager::speckey_up_func);
-
-    glutKeyboardFunc(InputManager::keyboard_down_func);
-    //glutKeyboardUpFunc(InputManager::keyboard_up_func);
+    glfwSetCursorPosCallback(window, InputManager::motion_func);
+    glfwSetMouseButtonCallback(window, InputManager::mouse_func);
+    glfwSetScrollCallback(window, InputManager::scroll_func);
+    glfwSetKeyCallback(window, InputManager::key_func);
 }
 
-void InputManager::set_key_handler(unsigned char key, InputManager::handler_func_t handler)
+void InputManager::set_key_handler(int key, InputManager::handler_func_t handler)
 {
     events[key] = handler;
 }
 
-void InputManager::del_key_handler(unsigned char key)
+void InputManager::del_key_handler(int key)
 {
     events.extract(key);
 }
 
 // Обработчики
-void InputManager::motion_func(int x, int y)
+void InputManager::motion_func(GLFWwindow*, double x, double y)
 {
     get_instance().set_mouse_state('x', x);
     get_instance().set_mouse_state('y', y);
 }
 
-void InputManager::mouse_func(int button, int state, int x, int y)
+void InputManager::mouse_func(GLFWwindow*, int button, int action, int mods)
 {
     switch (button)
     {
-        case 0:
-        case 1:
-        case 2:
-            get_instance().set_mouse_state(button, state);
-            motion_func(x, y);
+        case GLFW_MOUSE_BUTTON_LEFT:
+        case GLFW_MOUSE_BUTTON_MIDDLE:
+        case GLFW_MOUSE_BUTTON_RIGHT:
+            get_instance().set_mouse_state(button, action);
             return;
-        case 3: // колёсико вверх
-            get_instance().camera->zoom(0.05);
-            return;
-        case 4: // колёсико вниз
-            get_instance().camera->zoom(-0.05);
+    }
+}
+
+void InputManager::scroll_func(GLFWwindow*, double xoffset, double yoffset) {
+    get_instance().camera->zoom(yoffset / 10);
+}
+
+void InputManager::key_func(GLFWwindow*, int key, int scancode, int action, int mods) {
+    if (action != GLFW_PRESS && action != GLFW_RELEASE) {
+        return;
+    }
+
+    switch (key) {
+        case GLFW_KEY_UP:
+        case GLFW_KEY_DOWN:
+        case GLFW_KEY_LEFT:
+        case GLFW_KEY_RIGHT:
+            get_instance().set_arrow_state(key, action);
             return;
         default:
-            return;
+            if (action == GLFW_PRESS) {
+                auto it = get_instance().events.find(key);
+                if (it != get_instance().events.end())
+                {
+                    it->second();
+                }
+            }
     }
 }
 
-void InputManager::speckey_down_func(int key, int, int)
-{
-    speckey(key, GLUT_DOWN);
-}
-
-void InputManager::speckey_up_func(int key, int, int)
-{
-    speckey(key, GLUT_UP);
-}
-
-void InputManager::keyboard_down_func(unsigned char key, int, int)
-{
-    auto it = get_instance().events.find(key);
-    if (it != get_instance().events.end())
-    {
-        it->second();
-    }
-}
-
-// Вспомогательные для обработчиков методы
-void InputManager::speckey(int key, int state)
-{
-    switch (key)
-    {
-        case GLUT_KEY_UP:
-        case GLUT_KEY_DOWN:
-        case GLUT_KEY_LEFT:
-        case GLUT_KEY_RIGHT:
-            get_instance().set_arrow_state(key, state);
-            return;
-    }
-}

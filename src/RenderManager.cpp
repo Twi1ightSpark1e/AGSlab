@@ -1,7 +1,7 @@
 #include <cgraphics/RenderManager.hpp>
 #include <cgraphics/ResourceManager.hpp>
 
-#include <GL/freeglut.h>
+#include <GLFW/glfw3.h>
 
 #include <algorithm>
 #include <cmath>
@@ -97,7 +97,7 @@ void RenderManager::add_to_queue(GraphicObject object)
     }
 }
 
-void RenderManager::finish()
+void RenderManager::finish(GLFWwindow *window)
 {
     render_objects();
     render_skybox();
@@ -108,7 +108,7 @@ void RenderManager::finish()
     }
     render_to_screen();
     Shader::deactivate();
-    glutSwapBuffers();
+    glfwSwapBuffers(window);
 }
 
 GLuint RenderManager::create_per_scene_block()

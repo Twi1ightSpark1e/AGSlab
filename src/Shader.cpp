@@ -1,7 +1,7 @@
 #include <cgraphics/Extensions.hpp>
 #include <cgraphics/Shader.hpp>
 
-#include <GL/freeglut.h>
+#include <GLFW/glfw3.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>

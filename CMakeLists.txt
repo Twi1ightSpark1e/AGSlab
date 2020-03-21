@@ -31,17 +31,19 @@ set(SOURCES
 
 find_package(OpenGL REQUIRED)
 find_package(DevIL REQUIRED)
-find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(GLM REQUIRED)
 find_package(PugiXML REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Boost REQUIRED)
 
+find_package(PkgConfig REQUIRED)
+pkg_search_module(GLFW REQUIRED glfw3)
+
 include_directories(
     ${OPENGL_INCLUDE_DIRS}
     ${IL_INCLUDE_DIRS}
-    ${GLUT_INCLUDE_DIRS}
+    ${GLFW_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
     ${GLM_INCLUDE_DIRS}
     ${PUGIXML_INCLUDE_DIRS}
@@ -55,7 +57,7 @@ target_link_libraries(cgraphics
     ${OPENGL_LIBRARIES}
     ${IL_LIBRARIES}
     ${ILU_LIBRARIES}
-    ${GLUT_LIBRARIES}
+    ${GLFW_LIBRARIES}
     ${GLEW_LIBRARIES}
     ${BOOST_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
